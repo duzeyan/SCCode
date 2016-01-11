@@ -1,6 +1,8 @@
 ﻿#include "main.h"
 using namespace std;
 ofstream         oflocal;
+
+
 int main()
 {
 	//处理线程id
@@ -24,6 +26,7 @@ int main()
 	ReadNodeFileRestore();           //读task.txt路点文件
 	ReadLinjie();                    //读adjust.db
 	
+			if (IsDebug())         oflocal<<"初始化所有数据!"<<endl;
 	
 	if (-1 == NJUST_IP_set_tcp_callBack("MO", MOCallBack, NULL))
 	{
@@ -47,9 +50,10 @@ int main()
 	return 0;
 }
 
+
+
 int MCCallBack(void* mc_to_map, size_t size, void* args)//mc_to_map是包的指针，size是包的大小，args是附加参数
 {
-
 	NJUST_MC_STATE_INFO  *pState; //当不是状态数据时,值为NULL
 	NJUST_MC_NAV_INFO    *pNav; //当不是导航信息时,值为NULL
 	NJUST_MC_DRIVE_INFO  *pDrive; //当不是执行数据时,值为NULL
@@ -61,8 +65,10 @@ int MCCallBack(void* mc_to_map, size_t size, void* args)//mc_to_map是包的指�
 		&pNav, //当不是导航信息时,值为NULL
 		&pDrive  //当不是执行数据时,值为NULL
 		);
+
 	if (pNav)//收到导航信息
 	{
+			//if (IsDebug())         oflocal<<"确定接收经纬度数据!"<<endl;
 		if (isFirst)
 		{
 			startNavID = pNav->navID;
@@ -278,7 +284,7 @@ void ReadInitialInfor()
 	m_adjusty = m_data1.m_adjusty;
 	notecounter = m_data1.notecounter;
 	linecounter = m_data1.linecounter;
-	//读入节点的信息
+	//读入节点的信息(
 	int i;
 	for (i = 0; i<notecounter; i++)
 	{
@@ -997,6 +1003,8 @@ void   dijstra(int startPoint, int endPoint, int escapes[], int pathPlanning[], 
 void   PathPlaning(int startPoint, int endPoint, int escapePoint[], int escapePointNum, int passPoint[], int passPointNum,
 	int pathPlanningQueue[], int &Queuelength)
 {
+			if(IsDebug())		oflocal<<"规划函数, startPoint:"<<startPoint<<endl;
+			if(IsDebug())		oflocal<<"规划函数, endPoint:"<<endPoint<<endl;
 	int pathPlanning[30];
 	int planninglength;
 	int escapes[MAX_NODE_NUM] = { 0 };
@@ -1166,7 +1174,7 @@ void ProcessingAndSend(double wholelongtitude, double wholelatitude)
 				chongqiinitial = 0;
 			}
 			//正常通行情况下，不重启，不重定位，但要record*****************************************************************
-			if (planningstate == 0)
+			if (planningstate == 0) 
 			{
 				int result = RoadNodeLocation(m_longtitudemeannew, m_latitudemeannew);//用的原始点的GPS，THRESHOLD=3400	         
 				if ((result + 1) != m_lastnode)
@@ -1177,17 +1185,21 @@ void ProcessingAndSend(double wholelongtitude, double wholelatitude)
 					if ((distancetonode<THREODNODE) && (distancetonode>0))//在路网的新的节点上，THREODNODE=4500
 					{
 						if (plujing == lujingnum - 1)//说明在路点文件中的路口处，此时说明该段路走完，需要重新规划下一段路
-						{				
+						{
+								if(IsDebug())		oflocal<<"进入新的节点且序列已经走完，重新规划\n "<<endl;
    							m_lastnode = lujing[plujing];
-						    m_lastline = lujing[plujing - 1];					
+						    m_lastline = lujing[plujing - 1];	
+							if(IsDebug())		oflocal<<"m_lastnode:"<<m_lastnode<<" m_lastline:"<<m_lastline<<endl;
 							pInitialNodeQueue = min(pInitialNodeQueue + 1, InitialNodeQueueNum - 1);//更新下一个路网中给出的路口		
 							//以该点为起点，下一个网路中的路口点为终点，重新规划新的路径
 							//但是要先判断一下下一个点在不在路网中
+								if(IsDebug())		oflocal<<"pInitialNodeQueue:"<<pInitialNodeQueue<<endl;
 							PassNodeQueueNum = 0;
 							PathPlaning(m_lastnode, InitialNodeQueue[pInitialNodeQueue].noderesult,
 										EscapePointQueue, EscapePointQueueNum,
 										PassNodeQueue, PassNodeQueueNum,
 										lujing, lujingnum);//路径中包含了线的编号
+								if(IsDebug())		oflocal<<"规划完成，lujingnum:"<<lujingnum<<endl;
 							plujing = 0;
 								//一下代码为在特殊路段加载特殊序列与通用序列								
 							ReadNodeGPS(m_lastline, lujing[plujing + 1]);
@@ -1207,10 +1219,12 @@ void ProcessingAndSend(double wholelongtitude, double wholelatitude)
 								plujing = min(plujing + 2, lujingnum - 1);
 								ReadLineGPSflag = 1;
 							}
+								if(IsDebug())		oflocal<<"进入新的节点且序列已经走完，重新规划 End\n "<<endl;
 						}
 						else//说明在路点文件中给的相邻两个路口之间的规划路径中，但此时仍然在路网上。
 								//还在上一次规划的路径中，未走完
 						{
+								if(IsDebug())		oflocal<<"进入新的节点且序列没有走完，重新规划\n "<<endl;
 								//加载一下判断的原因是：当遇到转弯或者连续的弯道时，为了构建地图的方便，会吧两个点采集的很近，
 								//以至于两个点之间的过度不需要经过道路，
 								//这样加上下面的判断会在这种情况出现的情况下也能记录新的节点的信息m_lastnode是记录上一个经过的节点
@@ -1227,14 +1241,16 @@ void ProcessingAndSend(double wholelongtitude, double wholelatitude)
 							end = lujing[plujing + 1];
 							flag = 1;
 							ludianorith = pludianori - 1;
-                            
+								if(IsDebug())		oflocal<<"Rrcord 之前\n "<<endl;
 							Record(nodeth, m_cur, m_next, start, end, flag, ludianorith);//节点序列							
 							plujing = min(plujing + 2, lujingnum - 1);//指向下一个节点						
 							ReadLineGPSflag = 1;
+								if(IsDebug())		oflocal<<"进入新的节点且序列没有走完，重新规划 End\n "<<endl;
 						}
 					}
 					else//在路网中，但是不在节点上，那就是在线上
 					{
+								
 						if ((result + 1))//若RoadNodeLocation定位不为-1，说明在节点上，但是Distance大于阈值，仍然定位在线上，则会进入此情况，
 								//若此时仍然发点，则会在send中的location函数中定诶到点，但状态没有更新，从而发送上一个节点的方向信息，所以此时返回，不做定位
 								//等待Distance小于阈值，从而更改状态，发送正确的方向信息！
@@ -1250,7 +1266,8 @@ void ProcessingAndSend(double wholelongtitude, double wholelatitude)
 								{
 									int linenum = curlocation - notecounter + 1;//linenum表示第几条线，从1开始
 									if (linenum == lujing[plujing - 1])//这个判断是防止进入节点后由于GPS漂移又进入道路误加载！,上面注释两种方法均可。
-									{							
+									{	
+										oflocal<<"获取路上GPS序列 End\n "<<endl;
 									    ReadLineGPS(m_ncur + 1, m_nnext + 1);	
 										ReadLineGPSflag = 0;
 										ReadNodeGPSflag = 1;
@@ -1258,7 +1275,8 @@ void ProcessingAndSend(double wholelongtitude, double wholelatitude)
 								}
 							}
 						}
-					}
+							//if(IsDebug())		oflocal<<"在线上 End\n "<<endl;
+					}	
 				}
 				int igpscur = locationGPS(m_longtitudemeannew, m_latitudemeannew);
 				int curlocation = Location(m_longtitudemeannew, m_latitudemeannew);//此时定位要么在节点，要么在道路，location已经被调用
@@ -1579,18 +1597,21 @@ void GetTurnChange(int m_lastline, int m_lastnode, int m_nextline, Turn & m_turn
 	return;
 }
 
-
+//进行debug配置
 void  CreatDebug()
 {
-	std::string str1 = "wlx--oflocal--";
-	NJUST_IP_TIME   syntime;
-	char timeget[20];
-	syntime = NJUST_IP_get_time();
-	NJUST_IP_get_timeStr(syntime, timeget);
-	str1.insert(str1.size(), timeget);
-	str1.insert(str1.size(), ".txt");
-	char *p1 = (char *)str1.data();
-	oflocal.open(p1);
+	//std::string str1 = "wlx--oflocal--";
+	//NJUST_IP_TIME   syntime;
+	//char timeget[20];
+	//syntime = NJUST_IP_get_time();
+	//NJUST_IP_get_timeStr(syntime, timeget);
+	//str1.insert(str1.size(), timeget);
+	//str1.insert(str1.size(), ".txt");
+	//char *p1 = (char *)str1.data();
+	//oflocal.open(p1);
+	//oflocal.open(str1.c_str());
+	std::string path="dzy-log.txt";
+	oflocal.open(path.c_str());
 }
 
 void GetFirstFiveGps(double wholelongtitude,double wholelatitude)
@@ -1644,17 +1665,25 @@ void FindStartEnd(int &sstart, int &eend)
 	{
 		double dis = DistanceToNode(m_longtitudemeannew, m_latitudemeannew, i);
 		//从initialnodequeue中查找！！
+		if ((dis<20) )
+		{
+			find = i;
+			break;
+		}
+		/*
 		if ((dis<min) && (dis>0))
 		{
 			min = dis;
 			find = i;
-		}
+		}*/
 	}
+	                                       if(IsDebug())          oflocal<<"初始时找到的initialnodequeue中节点编号"<<find+1<<endl;
+	                                
 	if (InitialNodeQueue[find].noderesult == 1) //在起点附近
 	{
 		sstart = 1;
 		eend = 2;
-		pInitialNodeQueue = find;
+		pInitialNodeQueue = find+1;
 	}
 	else
 	{
@@ -1727,7 +1756,8 @@ void  ChongqiChengxuBegin()
 	end = m_nnext + 1;
 	flag = 0;
 	ludianorith = 0;
-	Record(nodeth, m_cur, m_next, start, end, flag, ludianorith);//直线序列	                      
+	Record(nodeth, m_cur, m_next, start, end, flag, ludianorith);//直线序列	  
+															 	if(IsDebug())        oflocal<<"after record！****************************************************************"<<endl;
 	int curlocation;
 	curlocation = Location(m_longtitudemeannew, m_latitudemeannew);//此时定位要么在节点，要么在道路，
 	if (curlocation<notecounter)//定位到点
