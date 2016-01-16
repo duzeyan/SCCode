@@ -15,109 +15,97 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\DataStruct.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\main.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_2D_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_2D_proc.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_3D_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_3D_proc.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_3D4_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_3D4_proc.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_3D64_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_3D64_proc.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_ALV_BYD.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_FU_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_FU_proc.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_Global_Def.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_IP_comm.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_LS_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_LS_proc.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_MAP_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_MAP_proc.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_MC_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_MC_proc.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_MC_typedef.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_MO_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_MO_proc.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_PL_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\NJUST_PL_proc.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Parameter.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\MapModule.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\MAP__BASIC_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
+    <ClCompile Include="..\MapModule.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\newmain.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\NJUST_MAP_proc.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\mc.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\pl.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\MapModule.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\newmain.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
+    <ClInclude Include="..\MapModule.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_2D_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_2D_proc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_3D_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_3D_proc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_3D4_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_3D4_proc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_3D64_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_3D64_proc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_ALV_BYD.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_FU_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_FU_proc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_Global_Def.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_IP_comm.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_LS_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_LS_proc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_MAP_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_MAP_proc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_MC_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_MC_proc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_MC_typedef.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_MO_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_MO_proc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_PL_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NJUST_PL_proc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Parameter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MAP__BASIC_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{1398EAC2-3E5D-404F-8A91-08264BDB118C}</ProjectGuid>
+    <ProjectGuid>{690182BB-7458-4B33-8647-5E94E545C85E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>ViewByVS</RootNamespace>
+    <RootNamespace>MAP1</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -76,42 +76,38 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\DataStruct.h" />
-    <ClInclude Include="..\..\main.h" />
-    <ClInclude Include="..\..\MapModule.h" />
-    <ClInclude Include="..\..\MAP__BASIC_data.h" />
-    <ClInclude Include="..\..\NJUST_2D_data.h" />
-    <ClInclude Include="..\..\NJUST_2D_proc.h" />
-    <ClInclude Include="..\..\NJUST_3D4_data.h" />
-    <ClInclude Include="..\..\NJUST_3D4_proc.h" />
-    <ClInclude Include="..\..\NJUST_3D64_data.h" />
-    <ClInclude Include="..\..\NJUST_3D64_proc.h" />
-    <ClInclude Include="..\..\NJUST_3D_data.h" />
-    <ClInclude Include="..\..\NJUST_3D_proc.h" />
-    <ClInclude Include="..\..\NJUST_ALV_BYD.h" />
-    <ClInclude Include="..\..\NJUST_FU_data.h" />
-    <ClInclude Include="..\..\NJUST_FU_proc.h" />
-    <ClInclude Include="..\..\NJUST_Global_Def.h" />
-    <ClInclude Include="..\..\NJUST_IP_comm.h" />
-    <ClInclude Include="..\..\NJUST_LS_data.h" />
-    <ClInclude Include="..\..\NJUST_LS_proc.h" />
-    <ClInclude Include="..\..\NJUST_MAP_data.h" />
-    <ClInclude Include="..\..\NJUST_MAP_proc.h" />
-    <ClInclude Include="..\..\NJUST_MC_data.h" />
-    <ClInclude Include="..\..\NJUST_MC_proc.h" />
-    <ClInclude Include="..\..\NJUST_MC_typedef.h" />
-    <ClInclude Include="..\..\NJUST_MO_data.h" />
-    <ClInclude Include="..\..\NJUST_MO_proc.h" />
-    <ClInclude Include="..\..\NJUST_PL_data.h" />
-    <ClInclude Include="..\..\NJUST_PL_proc.h" />
-    <ClInclude Include="..\..\Parameter.h" />
+    <ClCompile Include="..\MapModule.cpp" />
+    <ClCompile Include="..\newmain.cpp" />
+    <ClCompile Include="..\NJUST_MAP_proc.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\main.cpp" />
-    <ClCompile Include="..\..\MapModule.cpp" />
-    <ClCompile Include="..\..\mc.cpp" />
-    <ClCompile Include="..\..\newmain.cpp" />
-    <ClCompile Include="..\..\pl.cpp" />
+    <ClInclude Include="..\MapModule.h" />
+    <ClInclude Include="..\MAP__BASIC_data.h" />
+    <ClInclude Include="..\NJUST_2D_data.h" />
+    <ClInclude Include="..\NJUST_2D_proc.h" />
+    <ClInclude Include="..\NJUST_3D4_data.h" />
+    <ClInclude Include="..\NJUST_3D4_proc.h" />
+    <ClInclude Include="..\NJUST_3D64_data.h" />
+    <ClInclude Include="..\NJUST_3D64_proc.h" />
+    <ClInclude Include="..\NJUST_3D_data.h" />
+    <ClInclude Include="..\NJUST_3D_proc.h" />
+    <ClInclude Include="..\NJUST_ALV_BYD.h" />
+    <ClInclude Include="..\NJUST_FU_data.h" />
+    <ClInclude Include="..\NJUST_FU_proc.h" />
+    <ClInclude Include="..\NJUST_Global_Def.h" />
+    <ClInclude Include="..\NJUST_IP_comm.h" />
+    <ClInclude Include="..\NJUST_LS_data.h" />
+    <ClInclude Include="..\NJUST_LS_proc.h" />
+    <ClInclude Include="..\NJUST_MAP_data.h" />
+    <ClInclude Include="..\NJUST_MAP_proc.h" />
+    <ClInclude Include="..\NJUST_MC_data.h" />
+    <ClInclude Include="..\NJUST_MC_proc.h" />
+    <ClInclude Include="..\NJUST_MC_typedef.h" />
+    <ClInclude Include="..\NJUST_MO_data.h" />
+    <ClInclude Include="..\NJUST_MO_proc.h" />
+    <ClInclude Include="..\NJUST_PL_data.h" />
+    <ClInclude Include="..\NJUST_PL_proc.h" />
+    <ClInclude Include="..\Parameter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
