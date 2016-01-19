@@ -1419,7 +1419,7 @@ int Location(double longtitude, double latitude)
 	CPoint point2;
 	GPSToOffset(longtitude, latitude, point);
 	int i;
-	//先确定该店距离哪个节点最近，比较距离的平方
+	//先确定该点距离哪个节点最近，比较距离的平方
 	if (m_flaglocation == 1)
 	{
 		m_ncur = FindAjustNoteOffset(point);

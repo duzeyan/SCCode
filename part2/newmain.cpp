@@ -2,7 +2,7 @@
 #include<iostream>
 using namespace std;
 
-//²âÊÔ MapFileStreamµÄLoadMapNode
+//æµ‹è¯• MapFileStreamçš„LoadMapNode
 void testLoadMaoNode(string s){
 	NJUST_MAP_BUILD_MAP buildMap;
 	MapFileStream *mapFile=new MapFileStream(s.c_str());
@@ -15,7 +15,7 @@ void testLoadMaoNode(string s){
 	}
 }
 
-//²âÊÔ MapFileStreamµÄLoadMapTask
+//æµ‹è¯• MapFileStreamçš„LoadMapTask
 void testLoadMapTask(string s){
 	vector<MAP_TASK_NODE> taskMap;
 	MapFileStream *mapFile=new MapFileStream(s.c_str());
@@ -26,7 +26,7 @@ void testLoadMapTask(string s){
 	}
 }
 
-//ÁÚ½Ó¾ØÕó
+//é‚»æ¥çŸ©é˜µ
 void testReadAdjst(string s){
 	NJUST_MAP_BUILD_MAP buildMap;
 	MapFileStream *mapFile=new MapFileStream(s.c_str());
@@ -41,7 +41,7 @@ void testReadAdjst(string s){
 	}
 }
 
-//²âÊÔ apFileStreamµÄ¶ÁÈ¡ĞòÁĞµã
+//æµ‹è¯• apFileStreamçš„è¯»å–åºåˆ—ç‚¹
 void testReadMapNode(string s){
 	vector<MAP_DOUBLE_POINT> GPSlist;
 	MapFileStream *mapFile=new MapFileStream(s.c_str());
@@ -61,7 +61,6 @@ void testReadMapNode(string s){
 }
 
 
-
 int main(int argc,char *argv[]){
 	string s;
 	if(argc>=2){
@@ -69,8 +68,8 @@ int main(int argc,char *argv[]){
 	}else{
 		s="";
 	}
-	
-	
+	MapApp mapapp(s.c_str());
+	mapapp.Run();
 
 	return 0;
 }

@@ -6,7 +6,20 @@
 using std::vector;
 //缓存最近GPS个数
 #define CACHE_GPS_LEN     5
+#define INITL_GPS_VALUE   -1
 
+
+//节点ID开始值
+#define START_NODE_ID   10000
+//道路DI开始值
+#define START_LINE_ID   20000
+
+
+typedef struct turn
+{
+	int turn;//0直行，1左拐，2右拐，3左Uturn，4右Uturn,5未知
+	double turndegree;
+}MAP_TURN;
 
 
 //采集地图信息时 路口结构
@@ -202,12 +215,13 @@ typedef struct ROADNODE
 
 //存储当前规划的路径信息
 typedef struct NJUST_PLAN_PATH{
-	vector<int> planPath;			 //最新规划的路径 ， 节点编号，道路编号，节点编号，。。。，节点编号
+	vector<int> planPathQueue;			 //最新规划的路径 ， 节点编号，道路编号，节点编号，。。。，节点编号
 	int cur;						 //当前时刻 车辆到达的位置(道路or路口)
 }NJUST_PLAN_PATH;
 
 //自建地图信息
 typedef struct NJUST_MAP_BUILD_MAP{
+	MAP_DOUBLE_POINT adjustPoint;		//转化大地坐标的原点,防止运算溢出 
 	vector<MAP_BUTTON_NOTE>  mapNode;   //自建地图中的所有路口
 	vector<MAP_BUTTON_LINE>  mapLine;   //自建地图中的所有道路
 	vector<int> adjMat;			     //地图中领结矩阵 矩阵转一维向量存取
@@ -218,11 +232,11 @@ typedef struct NJUST_MAP_GPS_INFO{
 	double curLongtitude;			 //最新的经度 单位度
 	double curLatitude;				 //最新的维度
 
-	double avgLongtitude;			 //GPS点的平局值 经度
-	double avglatitudel;			 //GPS点的平局值 维度
-	double cacheLng[CACHE_GPS_LEN];  //缓存GPS点 经度
-	double cacheLat[CACHE_GPS_LEN];  //缓存GPS点 维度
-	int curOld;                      //缓存游标 指向最旧数据
+	double lastLongtitude;			 //GPS点的平局值 经度
+	double lastlatitudel;			 //GPS点的平局值 维度
+	//double cacheLng[CACHE_GPS_LEN];  //缓存GPS点 经度
+	//double cacheLat[CACHE_GPS_LEN];  //缓存GPS点 维度
+	//int curOld;                      //缓存游标 指向最旧数据
 }NJUST_MAP_GPS_INFO;
 //----------------------------------------------------------------------------
 #endif
