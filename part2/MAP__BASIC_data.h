@@ -2,6 +2,7 @@
 #define _MAPBASICDATA_H_
 //----------------------------------------------------------------------------
 #include<vector>
+#include "NJUST_ALV_BYD.h"
 
 using std::vector;
 //缓存最近GPS个数
@@ -13,6 +14,13 @@ using std::vector;
 #define START_NODE_ID   10000
 //道路DI开始值
 #define START_LINE_ID   20000
+
+#define _MAP_LOG 1
+#if _MAP_LOG
+	#define MAP_PRINT(fmt,v) printf(fmt,v);fflush(stdout)
+#else
+    #define MAP_PRINT(fmt,v) 
+#endif
 
 
 typedef struct turn
@@ -120,6 +128,14 @@ typedef struct data
 	int     linecounter;
 }MAP_BUILD_FILE_HEAD;
 
+
+//计算丢包率
+typedef struct MAP_PACKAGE{
+	int startID; //第一个接收的帧ID
+	int endID;	 //最后一个接收的帧ID
+	int count;   //统计接收了多少帧
+	NJUST_IP_TIME startTime;//本帧开始接收时间
+}MAP_PACKAGE;
 typedef struct node
 {
 	int     idself;

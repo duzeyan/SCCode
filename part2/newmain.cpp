@@ -66,7 +66,7 @@ int main(int argc,char *argv[]){
 	if(argc>=2){
 		s=argv[1];
 	}else{
-		s="";
+		s="njustmap/";
 	}
 	MapApp mapapp(s.c_str());
 	mapapp.Run();

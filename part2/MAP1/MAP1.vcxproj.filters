@@ -24,6 +24,15 @@
     <ClCompile Include="..\NJUST_MAP_proc.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\MapCommunion.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MapFileStream.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MapTools.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\MapModule.h">

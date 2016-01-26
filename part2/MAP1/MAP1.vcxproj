@@ -76,7 +76,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\MapCommunion.cpp" />
+    <ClCompile Include="..\MapFileStream.cpp" />
     <ClCompile Include="..\MapModule.cpp" />
+    <ClCompile Include="..\MapTools.cpp" />
     <ClCompile Include="..\newmain.cpp" />
     <ClCompile Include="..\NJUST_MAP_proc.cpp" />
   </ItemGroup>
