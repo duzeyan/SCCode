@@ -45,7 +45,7 @@ void MapApp::Run(){
 	//启动时的初始化
 	lastID=planPath.planPathQueue[0]-1+START_NODE_ID;
 	curID=lastID;
-	//启动的特殊处理 认为启动点是路段
+	//启动的特殊处理 认为启动点是路段 节点0-》节点1之间的读点
 	mapFile->ReadMapGPS(planPath.planPathQueue[0],planPath.planPathQueue[2],GPSList,false);
 
 	while(1){
@@ -107,6 +107,7 @@ void MapApp::Run(){
 				Send2PL_Road(curLng,curLat,curID,planPath.planPathQueue[planPath.cur+1]-1);
 			}
 			//record记录当前状态
+
 		}//checkGPS
 	}//while
 }//func./MAP
@@ -263,8 +264,6 @@ bool MapApp::isInLine(double lng,double lat,int index){
 	int indexE=MapTools::GetNodeIndexByID(map.mapNode,IDe);
 
 	//换算成度
-	//MAP_PRINT("%d ",indexS); MAP_PRINT("%d ",indexE); MAP_PRINT("%s ","\n");
-	//MAP_PRINT("%lf ",map.mapNode[indexS].gpsx); MAP_PRINT("%lf ",map.mapNode[indexS].gpsy); MAP_PRINT("%s ","\n");
 	double lngS=map.mapNode[indexS].gpsx/60;
 	double latS=map.mapNode[indexS].gpsy/60;
 	double lngE=map.mapNode[indexE].gpsx/60;
@@ -279,11 +278,6 @@ bool MapApp::isInLine(double lng,double lat,int index){
 		if(lng>lngS&&lng<lngE)
 			return true;
 	}else{						//道路主要走向为 维度方向 南北
-		/*MAP_PRINT("%lf ",lngS); MAP_PRINT("%lf ",lngE); MAP_PRINT("%s ","\n");
-		MAP_PRINT("%lf ",latS); MAP_PRINT("%lf ",latE);  MAP_PRINT("%s ","\n");
-		MAP_PRINT("%lf ",lng); MAP_PRINT("%lf ",lat);  MAP_PRINT("%s ","\n");
-		MAP_PRINT("%d ",indexS); MAP_PRINT("%d ",indexE); MAP_PRINT("%s ","\n");
-		MAP_PRINT("%s ","========================================\n");*/
 		if(lat>latS&&lat<latE)
 			return true;
 	}
@@ -626,8 +620,18 @@ void MapApp::RecordWrite(int curID,int lastID){
 	fwrite(&lastID,sizeof(int),1,pRecord);   //lastID
 
 	//规划路线
-	fwrite(&planPath,sizeof(2),1,pRecord); 
-	//fwrite(&
+	int len=planPath.planPathQueue.size();
+	fwrite(&len,sizeof(int),1,pRecord); 
+	/*for(int i=0;i<len;i++){
+		int temp=planPath.planPathQueue[i];
+		fwrite(&temp,sizeof(int),1,pRecord); 
+	}*/
+	fwrite(&planPath.planPathQueue[0],sizeof(int),len,pRecord);
+
+	//GPS点
+	len=GPSList.size();
+	fwrite(&len,sizeof(int),1,pRecord); 
+	fwrite(&GPSList[0],sizeof(MAP_DOUBLE_POINT),len,pRecord);
 }
 
 
@@ -655,8 +659,8 @@ void MapApp::Release(){
 	if(mapFile!=NULL){
 		delete mapFile;
 	}
-	mapTaskNode.clear();  //无效？
-	GPSList.clear();      //无效？
+	mapTaskNode.clear();  //元素被清空 内存未释放
+	GPSList.clear();      //
 }
 
 

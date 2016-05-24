@@ -2,7 +2,7 @@
 #define _MAPBASICDATA_H_
 //----------------------------------------------------------------------------
 #include<vector>
-#include "NJUST_ALV_BYD.h"
+//#include "NJUST_ALV_BYD.h"
 
 using std::vector;
 //缓存最近GPS个数
@@ -141,7 +141,7 @@ typedef struct node
 	int     idself;
     int     neigh;//分支数
 	int     NeighNoteID[4]; //默认一个路口最多跟四个道路相连  跟本路口连接的路口ID
-	int     NeighLineID[4]; //跟本路口连接的道路ID  上线为neigh
+	int     NeighLineID[4]; //跟本路口连接的道路ID  上限制为neigh
 	int     HLD;//红绿灯位置
 	int     HLDkind;//红绿灯类型
 	int     lukou;//路口
@@ -178,6 +178,8 @@ typedef struct line
     int     leftdaolubianjie;//左道路边界
 	int     rightdaolubianjie;//右道路边界
 	int     idealspeed;   //建议速度
+	NJUST_MAP_ROAD_STRUCTURE structure; //结构化属性
+	NJUST_MAP_GPS_SOURCE    GPSDataFrom;//GPS信息来源
 }MAP_ROAD;
 
 typedef struct record
@@ -240,7 +242,7 @@ typedef struct NJUST_MAP_BUILD_MAP{
 	MAP_DOUBLE_POINT adjustPoint;		//转化大地坐标的原点,防止运算溢出 
 	vector<MAP_BUTTON_NOTE>  mapNode;   //自建地图中的所有路口
 	vector<MAP_BUTTON_LINE>  mapLine;   //自建地图中的所有道路
-	vector<int> adjMat;			     //地图中领结矩阵 矩阵转一维向量存取
+	vector<int> adjMat;			        //地图中领结矩阵 矩阵转一维向量存取
 }NJUST_MAP_BUILD_MAP;
 
 //GPS信息
