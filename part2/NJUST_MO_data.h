@@ -11,6 +11,10 @@
 //          NJUST_FROM_MO_COMMAND
 //          NJUST_TO_MO_WORKSTAT
 //
+//  修改
+//  日期：  2016.5.5
+//  内容：添加逻辑控制结构体（CFG）
+//
 ////////////////////////////////////////////////////////////////////////////////////////////////
 #ifndef _NJUST_MO_DATA_H_
 #define _NJUST_MO_DATA_H_
@@ -23,6 +27,8 @@
 #define  NJUST_MO_WORK_STAT_ERRMSG_MAXLEN       32     //工作状态错误消息的最大长度
 #define  NJUST_MO_DEBUGMSG_MAXLEN              128     //调试信息的最大长度
 
+#define  NJUST_MO_MAX_CFG_NUM               32    //一个模块最多逻辑指令个数
+#define  NJUST_MO_MAX_CFG_PARA_LEN          32     //最大逻辑命令参数长度
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  命令: 显控发给各模块
@@ -85,6 +91,39 @@ typedef struct tagNJUST_TO_MO_WORKSTAT
 	NJUST_MO_MODULE_ERRCODE errCode;     //错误码
     char pErrMsg[NJUST_MO_WORK_STAT_ERRMSG_MAXLEN+1];   //错误消息
 }NJUST_TO_MO_WORKSTAT;
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  逻辑控制设置：显控发给各模块
+//
+////////////////////////////////////////////////////////////////////////////////////////////////
+enum NJUST_MO_CFG_TYPE
+{
+	NJUST_MO_CFG_TYPE_NO = 0x00,                 //无配置 
+	NJUST_MO_CFG_TYPE_USE_MAPINFO,               //使用MAP信息
+	NJUST_MO_CFG_TYPE_PL_ZEBRA_SLOW,             //PL遇到人行横道线减速
+	NJUST_MO_CFG_TYPE_MAP_SEND_MANMADE_OBS,      //MAP发送人工标记的障碍
+	NJUST_MO_CFG_TYPE_2D_3D_CONFIRM_MANMADE_OBS, //环境感知是否再次辨认人工发用的人工障碍
+	NJUST_MO_CFG_TYPE_FU_OBS_REMAIN_TIME,        //FU对障碍的保持帧数
+	NJUST_MO_CFG_TYPE_TOTAL_NUM	  		         //最多配置种类数
+};
+
+typedef struct tagNJUST_MO_CFG
+{
+	NJUST_MO_CFG_TYPE cfg; //配置的类型
+	int value; //配置的值,0-无效，1-有效,其他-数值
+}NJUST_MO_CFG;
+
+typedef struct tagNJUST_FROM_MO_CFG
+{
+	int frameID; //命令编号(从0开始)
+	NJUST_IP_TIME synTime;  //系统时间
+	NJUST_MO_CFG pCFG[NJUST_MO_MAX_CFG_NUM]; //各配置
+	int nCFG; //有效配置的个数
+	int nSize; //该结构体的大小
+	unsigned char checksum; //检查和:以上数据之和
+}NJUST_FROM_MO_CFG;
 
 #endif
 

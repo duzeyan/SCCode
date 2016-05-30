@@ -27,8 +27,6 @@
 
 #include "NJUST_MAP_data.h"
 
-
-
  #ifdef __cplusplus
  extern "C" {
  #endif

@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="MAP头文件">
+      <UniqueIdentifier>{5d8ac4f1-0d99-42e4-babc-1ee2f3b8c0df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\MapModule.cpp">
@@ -35,9 +38,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\MapModule.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\NJUST_2D_data.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -114,7 +114,19 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\MAP__BASIC_data.h">
-      <Filter>头文件</Filter>
+      <Filter>MAP头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MapCommunion.h">
+      <Filter>MAP头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MapFileStream.h">
+      <Filter>MAP头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MapModule.h">
+      <Filter>MAP头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MapTools.h">
+      <Filter>MAP头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

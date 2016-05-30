@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C), 2015, 南京理工大学计算机科学与工程学院, 智能科学与技术系
@@ -15,6 +16,8 @@
 #include "NJUST_IP_comm.h"
 
 #define NJUST_MAP_GPS_POINT    20
+#define NJUST_MAP_OBSTACLE_POINT 20
+#define NJUST_MAP_DETECT_OBSTACLE_RADIUS_M 100 //检测障碍物的半径(M)  
 //道路类型
 enum  NJUST_MAP_ROAD_TYPE
 {
@@ -116,7 +119,7 @@ enum NJUST_MAP_ROAD_STRUCTURE    //道路结构
 };
 
 enum NJUST_MAP_GPS_SOURCE      //GPS信息来源
-{ 
+{
 	NJUST_MAP_GPS_FROM_CAR=0X00,    //GPS序列是车行驶采集的
 	NJUST_MAP_GPS_FROM_HAND_DEVICE, //GPS序列是手持GPS设备采集的
 	NJUST_MAP_GPS_FROM_HAND_DRAW,   //GPS序列是人工绘制编辑的
@@ -137,34 +140,7 @@ typedef struct obstacle
 	int             RadialCM;            //半径，以圆来描述,单位:cm
 }NJUST_MAP_OBSTACLE;
 
-//命名不规范
-//struct NJUST_MAP_INFO_ROAD
-//{
-//	NJUST_IP_TIME                     synTime;                             //时间戳
-//	int                               FrameID;                             //帧号
-//    int                               roadnum;                             //道路编号
-//	NJUST_MAP_ROAD_TYPE               roadType;                            //道路类型
-//	NJUST_MAP_ROAD_BOUNDARY_TYPE      leftRoadBoundaryType;                //左边界线类型
-//	NJUST_MAP_ROAD_BOUNDARY_TYPE      rightRoadBoundaryType;               //右边界线类型
-//	int                               roadWidth_cm;                         //道路宽度,单位：cm
-//	int                               curbWidth_cm;                         //马路崖子宽度,单位：cm (0: 无马路崖子)
-//	NJUST_MAP_LANE_LINE_TYPE          leftLaneLineType;                    //车道左边沿行道线类型
-//	NJUST_MAP_LANE_LINE_TYPE          centerLaneLineType;                  //车道中间行道线类型
-//	NJUST_MAP_LANE_LINE_TYPE          rightLaneLineType;                   //车道右边沿行道线类型
-//	int                               nLaneNum;                            //车道数量
-//	int                               idealSpeed_kmh;                      //建议车速 单位: km/h
-//	int                               distToNextNodeM;                    //距离下一路口距离 单位: m
-//	NJUST_MAP_GPSPoint                nextGPSPointQueue[NJUST_MAP_GPS_POINT];//下20个点序列
-//	int                               GPSPointQueuelength;                      //点序列中的有效点的个数
-//	NJUST_MAP_GPSPoint                LastNodeGps;                         //上一个路口中心位置的GPS经纬度
-//	NJUST_MAP_GPSPoint                NextNodeGps;                         //下一个路口中心位置的GPS经纬度
-//	NJUST_MAP_ROAD_STRUCTURE          Structure;                           //结构化属性
-//	NJUST_MAP_GPS_SOURCE              GPSDataFrom;                         //GPS信息来源
-//	bool                              IsHaveObstacle;                      //前方是否有障碍物
-//	NJUST_MAP_OBSTACLE                MapObstacle;                         //障碍物描述
-//	int                               nSize;                               //该结构体的大小
-//	unsigned char                     checksum;                            //检查和:以上数据之和
-//};
+
 
 struct NJUST_MAP_INFO_ROAD
 {
@@ -177,7 +153,7 @@ struct NJUST_MAP_INFO_ROAD
 	int                               roadWidthCm;                         //道路宽度,单位：cm
 	int                               curbWidthCm;                         //马路崖子宽度,单位：cm (0: 无马路崖子)
 	NJUST_MAP_LANE_LINE_TYPE          leftLaneLineType;                    //车道左边沿行道线类型
-	NJUST_MAP_LANE_LINE_TYPE          centerLaneLineType;                  //车道中间行道线类型
+ 	NJUST_MAP_LANE_LINE_TYPE          centerLaneLineType;                  //车道中间行道线类型
 	NJUST_MAP_LANE_LINE_TYPE          rightLaneLineType;                   //车道右边沿行道线类型
 	int                               nLaneNum;                            //车道数量
 	int                               idealSpeedKMH;                      //建议车速 单位: km/h
@@ -188,43 +164,22 @@ struct NJUST_MAP_INFO_ROAD
 	NJUST_MAP_GPSPoint                nextNodeGps;                         //下一个路口中心位置的GPS经纬度
 	NJUST_MAP_ROAD_STRUCTURE          structure;                           //结构化属性
 	NJUST_MAP_GPS_SOURCE              GPSDataFrom;                         //GPS信息来源
-	bool                              isHaveObstacle;                      //前方是否有障碍物
-	NJUST_MAP_OBSTACLE                mapObstacle;                         //障碍物描述
+	NJUST_MAP_OBSTACLE                mapObstacleQueue[NJUST_MAP_OBSTACLE_POINT];  //  检测半径内的障碍物序列                     //障碍物描述
+	bool                              obstacleQueueLength;                      //障碍物个数
 	int                               nSize;                               //该结构体的大小
 	unsigned char                     checksum;                            //检查和:以上数据之和
 };
 
-//交叉路口结构体
-//struct NJUST_MAP_INFO_NODE
-//{
-//	NJUST_IP_TIME                      synTime;                  //时间戳
-//	int                                FrameID;                  //帧号
-//    int                                nodenum;                 //节点编号
-//	int                                x_cm;                    //节点中心点大地坐标x,单位:cm
-//	int                                y_cm;                    //节点中心点大地坐标y,单位:cm
-//	NJUST_MAP_NODE_TYPE                nodeType;                //路口类型
-//	NJUST_MAP_NODE_PASS_TYPE           nodepassType;            //通过路口方式
-//	NJUST_MAP_TRAFFIC_LIGHTS_POSITION  trafficLightsPosition;   //红绿灯位置
-//	NJUST_MAP_TRAFFIC_LIGHTS_TYPE      trafficLightsType;       //红绿灯类型
-//	int                                zebraCrossing;           //是否有斑马线
-//	NJUST_MAP_GPSPoint                 nextGPSPointQueue[NJUST_MAP_GPS_POINT];//下20个点序列
-//	int                                GPSPointQueuelength;     //点序列中的有效点的个数
-//	NJUST_MAP_ROAD_STRUCTURE           RoadProprity;              //道路属性，结构化/非结构化
-//	NJUST_MAP_GPS_SOURCE               GPS_PROPRITY;              //GPS序列的属性来源
-//	bool                               Is_Have_Obstacle;          //前方是否有障碍物
-//	NJUST_MAP_OBSTACLE                 Map_Obstacle;              //障碍物描述
-//	int                                nSize;                   //该结构体的大小
-//	unsigned char                      checksum;                //检查和:以上数据之和
-//};
+
 
 //交叉路口结构体
 struct NJUST_MAP_INFO_NODE
 {
 	NJUST_IP_TIME                      synTime;                  //时间戳
 	int                                frameID;                  //帧号
-    int                                nodenum;                 //节点编号
+    int                                nodeNum;                 //节点编号
 	int                                xCM;                    //节点中心点大地坐标x,单位:cm
-	int                                yCm;                    //节点中心点大地坐标y,单位:cm
+	int                                yCM;                    //节点中心点大地坐标y,单位:cm
 	NJUST_MAP_NODE_TYPE                nodeType;                //路口类型
 	NJUST_MAP_NODE_PASS_TYPE           nodepassType;            //通过路口方式
 	NJUST_MAP_TRAFFIC_LIGHTS_POSITION  trafficLightsPosition;   //红绿灯位置
@@ -232,10 +187,9 @@ struct NJUST_MAP_INFO_NODE
 	int                                zebraCrossing;           //是否有斑马线
 	NJUST_MAP_GPSPoint                 nextGPSPointQueue[NJUST_MAP_GPS_POINT];//下20个点序列
 	int                                GPSPointQueuelength;     //点序列中的有效点的个数
-	NJUST_MAP_ROAD_STRUCTURE           roadProprity;              //道路属性，结构化/非结构化
 	NJUST_MAP_GPS_SOURCE               GPSProprity;              //GPS序列的属性来源
-	bool                               isHaveObstacle;          //前方是否有障碍物
-	NJUST_MAP_OBSTACLE                 mapObstacle;              //障碍物描述
+	NJUST_MAP_OBSTACLE                 mapObstacleQueue[NJUST_MAP_OBSTACLE_POINT];  //  检测半径内的障碍物序列                     //障碍物描述
+	bool                               obstacleQueueLength;                      //障碍物个数
 	int                                nSize;                   //该结构体的大小
 	unsigned char                      checksum;                //检查和:以上数据之和
 };
@@ -243,7 +197,7 @@ struct NJUST_MAP_INFO_NODE
 struct NJUST_MAP_INFO_DIRECTION
 {
 	NJUST_IP_TIME                      synTime;                  //时间戳
-	int                                FrameID;                   //帧号
+	int                                frameID;                   //帧号
 	NJUST_MAP_NODE_PROPRITY            nodeproprity;            //路点属性
 	int                                nSize;                   //该结构体的大小
 	unsigned char                      checksum;                //检查和:以上数据之和

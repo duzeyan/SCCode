@@ -1,5 +1,5 @@
 ﻿#include"MapTools.h"
-
+#include<cassert>
 
 
 ////
@@ -169,7 +169,7 @@ double MapTools::GetDistanceByGPS(double lng1,double lat1,double lng2,double lat
 }
 
 //通过路口ID获得路口索引
-int MapTools::GetNodeIndexByID(const vector<MAP_BUTTON_NOTE> nodes,int id){
+int MapTools::GetNodeIndexByID(const vector<MAP_BUTTON_NOTE> &nodes,int id){
 	for(size_t i=0;i<nodes.size();i++){
 		if(nodes[i].idself==id)
 			return i;
@@ -177,8 +177,22 @@ int MapTools::GetNodeIndexByID(const vector<MAP_BUTTON_NOTE> nodes,int id){
 	return -1;
 }
 
+MAP_BUTTON_NOTE MapTools::GetNodeByID(const vector<MAP_BUTTON_NOTE> &nodes,int id){
+	int index=MapTools::GetNodeIndexByID(nodes,id);
+	assert(index!=-1);
+	return nodes[index];
+}
+
+	//通过道路ID获得道路属性
+MAP_BUTTON_LINE  MapTools::GetLineByID(const vector<MAP_BUTTON_LINE> &lines,int id){
+	int index=MapTools::GetLineIndexByID(lines,id);
+	assert(index!=-1);
+	return lines[index];
+}
+
+
 //通过道路ID获得道路索引
-int  MapTools::GetLineIndexByID(const vector<MAP_BUTTON_LINE> lines,int id){
+int  MapTools::GetLineIndexByID(const vector<MAP_BUTTON_LINE> &lines,int id){
 	for(size_t i=0;i<lines.size();i++){
 		if(lines[i].idself==id)
 			return i;
@@ -186,9 +200,29 @@ int  MapTools::GetLineIndexByID(const vector<MAP_BUTTON_LINE> lines,int id){
 	return -1;
 }
 
+//根据距离且在给出GPS序列点上的障碍物对象指针，没有符合条件返回NULL
+//当前经纬度(单位度),设定距离(m) 
+void MapTools::GetObsByDistance(double lng,
+								double lat,
+								double distanceM,
+								const vector<NJUST_MAP_OBSTACLE> &obs,
+								vector<NJUST_MAP_OBSTACLE> &outObs){
+	double dis=0.0;
+	//Step.1 遍历找到所有障碍物中符合条件的
+	for(size_t i=0;i<obs.size();i++){
+		dis=MapTools::GetDistanceByGPS(lng,lat,
+									obs[i].ObstacleCenterGPS.longtitude,
+									obs[i].ObstacleCenterGPS.latitude);
+		if(dis<distanceM){
+			outObs.push_back(obs[i]);
+		}
+	}
+}
+
+
 
 void MapTools::StructTransformLine(MAP_BUTTON_LINE* line, NJUST_MAP_INFO_ROAD **road){
-	(*road)->roadnum = line->idself - START_LINE_ID + 1;
+	(*road)->roadNum = line->idself - START_LINE_ID + 1;
 	switch (line->roadkind)
 	{
 	case 0:
@@ -306,10 +340,15 @@ void MapTools::StructTransformLine(MAP_BUTTON_LINE* line, NJUST_MAP_INFO_ROAD **
 		(*road)->rightRoadBoundaryType = NJUST_MAP_ROAD_BOUNDARY_TYPE_DANGEROUSBOUNDARY;
 		break;
 	}
-	(*road)->nLaneNum = line->chedaonum;
-	(*road)->roadWidth_cm = line->wedth;
-	(*road)->curbWidth_cm = line->hyazi;
-	(*road)->idealSpeed_kmh = line->idealspeed;
+	(*road)->nLaneNum = line->chedaonum; //编号
+	(*road)->roadWidthCm = line->wedth; //TODO 无效
+	(*road)->curbWidthCm = line->hyazi; //TODO 马路牙子高度
+	(*road)->idealSpeedKMH = line->idealspeed;
+	(*road)->structure=NJUST_MAP_STRUCTURED_ROAD; //默认结构化道路
+	(*road)->GPSDataFrom=NJUST_MAP_GPS_FROM_CAR; //GPS来源
+	
+
+
 	(*road)->nSize = sizeof(NJUST_MAP_INFO_ROAD);
 	(*road)->checksum = 0;
 }
@@ -317,24 +356,25 @@ void MapTools::StructTransformLine(MAP_BUTTON_LINE* line, NJUST_MAP_INFO_ROAD **
 int MapTools::NJUST_MAP_Encode_IP_Data(const void* pUnknow, int date, char globle[])
 {
 		char *pdata = (char *)pUnknow;
+		globle[0]='#';
 		switch (date)
 		{
 		case 0://road信息
 		{
-				   globle[0] = '0';
-				   memcpy(&globle[1], pdata, sizeof(NJUST_MAP_INFO_ROAD));
+				   globle[1] = '0';
+				   memcpy(&globle[2], pdata, sizeof(NJUST_MAP_INFO_ROAD));
 				   break;
 		}
 		case 1://node信息
 		{
-				   globle[0] = '1';
-				   memcpy(&globle[1], pdata, sizeof(NJUST_MAP_INFO_NODE));
+				   globle[1] = '1';
+				   memcpy(&globle[2], pdata, sizeof(NJUST_MAP_INFO_NODE));
 				   break;
 		}
 		case 2://方向导引
 		{
-				   globle[0] = '2';
-				   memcpy(&globle[1], pdata, sizeof(NJUST_MAP_INFO_DIRECTION));
+				   globle[1] = '2';
+				   memcpy(&globle[2], pdata, sizeof(NJUST_MAP_INFO_DIRECTION));
 				   break;
 		}
 		}
@@ -343,9 +383,9 @@ int MapTools::NJUST_MAP_Encode_IP_Data(const void* pUnknow, int date, char globl
 
 void MapTools::StructTransformNote(MAP_BUTTON_NOTE* note, NJUST_MAP_INFO_NODE **node)
 {
-	(*node)->nodenum = note->idself - START_NODE_ID + 1;
-	(*node)->x_cm = note->earthx;
-	(*node)->y_cm = note->earthy;
+	(*node)->nodeNum = note->idself - START_NODE_ID + 1;
+	(*node)->xCM = note->earthx;
+	(*node)->yCM = note->earthy;
 	switch (note->lukou)
 	{
 	case 0:
@@ -403,8 +443,10 @@ void MapTools::StructTransformNote(MAP_BUTTON_NOTE* note, NJUST_MAP_INFO_NODE **
 		(*node)->trafficLightsType = NJUST_MAP_TRAFFIC_LIGHTS_TYPE_STRAIGHT;
 		break;
 	}
-
+	
 	(*node)->zebraCrossing = note->zebra;
+	(*node)->zebraCrossing = note->zebra;
+	(*node)->GPSProprity=NJUST_MAP_GPS_FROM_CAR; //GPS来源
 	(*node)->nSize = sizeof(NJUST_MAP_INFO_NODE);
 	(*node)->checksum = 0;
 }
@@ -437,4 +479,28 @@ double  MapTools::GetRotateAngle(double x1, double y1, double x2, double y2)//�
 		}
 		degree = angle *  180.0 / nyPI;
 		return degree;
+}
+
+//ID转化为编号
+int MapTools::ID2Code(int id){
+	assert(id>=START_NODE_ID);
+	if(id<START_LINE_ID){ //是节点ID
+		return id-START_NODE_ID+1;
+	}
+	return id-START_LINE_ID+1;
+}
+
+//编号转化为ID
+int MapTools::Code2ID(int code,int type){
+	assert(code>=0);
+	switch (type)
+	{
+	case 1:
+		return code-1+START_NODE_ID;
+	case 2:
+		return code-1+START_LINE_ID;
+	default:
+		break;
+	}
+	return -1;
 }

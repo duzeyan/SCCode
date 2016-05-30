@@ -16,41 +16,45 @@ int  NJUST_MAP_Decode_IP_Data( const void* pIPData, const int nBytes,
 							 NJUST_MAP_INFO_DIRECTION      **pProprity//当不是方向导引时。值为NULL
 							 )
 {
+    *pRoad=NULL;
+    *pNode=NULL;
+    *pProprity=NULL;
 	char date;
 	char *pdata=(char *)pIPData;
     memcpy(&date,pdata,1);
-
-
-	switch (date)
-	{
-	case '0'://road信息
+    if(date=='#')
+    {
+        memcpy(&date,&pdata[1],1);
+        switch (date)
+        {
+        case '0'://road信息
 		{
-			memcpy(&gNJUST_Map_Road,&pdata[1],sizeof(NJUST_MAP_INFO_ROAD));
+			memcpy(&gNJUST_Map_Road,&pdata[2],sizeof(NJUST_MAP_INFO_ROAD));
 			*pRoad=&gNJUST_Map_Road;
 			*pNode=NULL;
 			*pProprity=NULL;
 			break;
 		}
-	case '1'://node信息
+        case '1'://node信息
 		{
-			memcpy(&gNJUST_Map_Node,&pdata[1],sizeof(NJUST_MAP_INFO_NODE));
+			memcpy(&gNJUST_Map_Node,&pdata[2],sizeof(NJUST_MAP_INFO_NODE));
 			*pNode = &gNJUST_Map_Node;
 			*pRoad=NULL;
 			*pProprity=NULL;
 			break;
 		}
-	case '2'://方向导引
+        case '2'://方向导引
 		{
-			memcpy(&gNJUST_Map_Direction,&pdata[1],sizeof(NJUST_MAP_INFO_DIRECTION));
+			memcpy(&gNJUST_Map_Direction,&pdata[2],sizeof(NJUST_MAP_INFO_DIRECTION));
 			*pProprity=&gNJUST_Map_Direction;
 			*pNode = NULL;
 			*pRoad=NULL;
 			break;
 		}
-	}
-
-	return 0;
-
+        }
+        return 0;
+    }
+	return -1;
 }
 
 int NJUST_MAP_Read_offline_data( const char* pFileName, //待读取的数据文件名

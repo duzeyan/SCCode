@@ -30,10 +30,11 @@ void MapFileStream::LoadMapNode(NJUST_MAP_BUILD_MAP &map){
 	MAP_ROAD tRoad;
 	MAP_BUTTON_NOTE tButtonNode;
 	MAP_BUTTON_LINE tButtonLine;
+	NJUST_MAP_OBSTACLE obs;
 	
 	FILE *pFile = fopen(path, "rb");
 	if(pFile==NULL){
-		perror("perror");
+		MAP_PRINT("打开地图结构文件失败\n","");
 		return ;
 	}
 
@@ -54,6 +55,11 @@ void MapFileStream::LoadMapNode(NJUST_MAP_BUILD_MAP &map){
 		fread(&tRoad, sizeof(MAP_ROAD), 1, pFile);
 		MapTools::Line2ButtonLine(tRoad,tButtonLine);
 		map.mapLine.push_back(tButtonLine);
+	}
+
+	for(int i=0;i<mapHead.obstaclecounter;i++){              //读道路信息  道路
+		fread(&obs, sizeof(NJUST_MAP_OBSTACLE), 1, pFile);
+		map.mapObs.push_back(obs);
 	}
 
 	fclose(pFile);
@@ -79,18 +85,26 @@ void MapFileStream::LoadMapTask(vector<MAP_TASK_NODE> &mapTaskNode){
 	fseek(pf, 0L, SEEK_END);
 	int len = ftell(pf) / sizeof(ROADNODE);
 	fseek(pf, 0L, SEEK_SET);
-	fread(buff, sizeof(ROADNODE), len, pf);
+	//fread(buff, sizeof(ROADNODE), len, pf);
 
     for(int i=0;i<len;i++)
-    {
+	{
+		fread(&(buff[i]), sizeof(ROADNODE), 1, pf);
 		mapTaskNode.push_back(buff[i]);
     }
     
     fclose(pf);
 	MAP_PRINT("%s待规划路径：","");
+	FILE *flog=fopen("logInit" ,"w");
 	for(unsigned int i=0;i<mapTaskNode.size();i++){
-		MAP_PRINT("%d ",mapTaskNode[i].noderesult);
+		fprintf(pf,"%d ",mapTaskNode[i].num);
+		fprintf(pf,"%lf ",mapTaskNode[i].longtitude);
+		fprintf(pf,"%lf ",mapTaskNode[i].latitude);
+		fprintf(pf,"%lf ",mapTaskNode[i].noderesult);
+		fprintf(pf,"%lf ",mapTaskNode[i].shuxing1);
+		fprintf(pf,"%s","\n");
 	}
+	fclose(flog);
 	MAP_PRINT("%s","\n");
 }
 
@@ -114,6 +128,16 @@ void MapFileStream::LoadAdjMat(NJUST_MAP_BUILD_MAP &map){
 	}
 	
 	//读取矩阵
+
+	//读块内存的方法
+	/*int tAdj[noteCount*noteCount];
+	fread(tAdj, sizeof(int), noteCount*noteCount, pf);
+	for (i = 0; i<noteCount*noteCount; i++)
+	{		
+		map.adjMat.push_back(tAdj[i]);
+	}*/
+
+	//按字节的方法
 	for (i = 0; i<noteCount*noteCount; i++)
 	{
 		fread(&buff, sizeof(int), 1, pf);

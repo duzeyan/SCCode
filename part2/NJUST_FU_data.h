@@ -287,9 +287,9 @@ typedef struct tagNJUST_FU_RESLUT
 	int                                             courseAngleRad; /*!< 航向角,单位:0.001,千分之一弧度 */                       
 	NJUST_FU_POINT                                  earthCoord;     /*!< 车体的大地坐标 */
 	//运动的障碍物集合
-	NJUST_FU_OBS								    movingObs;	 	/*!< 运动的障碍物集合*/
+	NJUST_FU_OBS								    quadObs;	 	/*!< 运动的障碍物集合*/
 	//障碍物栅格(包含静止和运动障碍)
-    BYTE gridMsk[NJUST_LIDAR64_VERTICAL_GRID_SIZE][NJUST_LIDAR64_HORIZONTAL_GRID_SIZE]; //高400*宽800: 50*100个字节
+    BYTE gridMsk[NJUST_LIDAR64_VERTICAL_GRID_NUM*NJUST_LIDAR64_HORIZONTAL_GRID_NUM]; //高400*宽800: 50*100个字节
 	//结构体大小
 	int                                             nSize;          /*!< 结构体大小 */
 	//检查和

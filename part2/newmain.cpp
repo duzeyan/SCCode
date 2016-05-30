@@ -3,15 +3,27 @@
 using namespace std;
 
 //测试 MapFileStream的LoadMapNode
-void testLoadMaoNode(string s){
+void testLoadMapNode(string s){
 	NJUST_MAP_BUILD_MAP buildMap;
 	MapFileStream *mapFile=new MapFileStream(s.c_str());
 	mapFile->LoadMapNode(buildMap);
-	cout<<buildMap.mapLine.size()<<endl;
-	cout<<buildMap.mapNode.size()<<endl;
+	
 	vector<MAP_BUTTON_LINE>::iterator it=buildMap.mapLine.begin();
 	for(;it!=buildMap.mapLine.end();it++){
-		printf("%d\n",(*it).idself);
+		MAP_PRINT("%d\n",(*it).idself);
+		//MAP_PRINT("%lf\n",(*it).b);
+	}
+
+	for(unsigned int i=0;i<buildMap.mapNode.size();i++){
+		MAP_PRINT("NodeID:%d\n",buildMap.mapNode[i].idself);
+		MAP_PRINT("gpsx:%lf\n",buildMap.mapNode[i].gpsx);
+		for(unsigned int j=0;j<buildMap.mapNode[i].neigh;j++){
+			MAP_PRINT("%d\n",buildMap.mapNode[i].NeighLineID[j]);
+		}
+	}
+
+	for(unsigned int i=0;i<buildMap.mapObs.size();i++){
+		MAP_PRINT("障碍物中心:%lf\n",buildMap.mapObs[i].ObstacleCenterGPS.longtitude);
 	}
 }
 
@@ -24,6 +36,7 @@ void testLoadMapTask(string s){
 	for(;it!=taskMap.end();it++){
 		printf("%d\n",(*it).noderesult);
 	}
+	MAP_PRINT("结构体长度 %d",sizeof(MAP_TASK_NODE));
 }
 
 //邻接矩阵
@@ -36,8 +49,8 @@ void testReadAdjst(string s){
 	int count=buildMap.mapNode.size();
 	for(int i=0;i<count;i++){
 		for(int j=0;j < count ;j++)
-			printf("%10d ",*(it+i*count+j));
-		printf("\n");
+			MAP_PRINT("%10d ",*(it+i*count+j));
+		MAP_PRINT("%s\n","");
 	}
 }
 
@@ -68,8 +81,15 @@ int main(int argc,char *argv[]){
 	}else{
 		s="njustmap/";
 	}
+	////运行
 	MapApp mapapp(s.c_str());
 	mapapp.Run();
+
+
+	//测试
+	//testLoadMapNode(s.c_str());
+	//testReadAdjst(s.c_str());
+	//testLoadMapTask(s.c_str());
 
 	return 0;
 }

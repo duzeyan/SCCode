@@ -6,6 +6,9 @@
 //  Date:   2015.6.27
 //  Description: 3D模块的数据定义
 //
+//  修改记录
+//  Date:   2016.5.5
+//
 ////////////////////////////////////////////////////////////////////////////////////////////////
 #ifndef _NJUST_3D64_DATA_H_
 #define _NJUST_3D64_DATA_H_
@@ -31,14 +34,14 @@ typedef unsigned char       BYTE;
 #define NJUST_LIDAR64_HORIZONTAL_DISTANCE_CM     4000           //64线雷达的水平距离4000cm,车左2000cm,车右2000cm            
 //分辨率
 #define NJUST_LIDAR64_VERTICAL_RESOLUTION_CM       20           //64线雷达的垂直分辨率20cm
-#define NJUST_LIDAR64_HORIZONTAL_RESOLUTION_CM      5           //64线雷达的水平分辨率5cm
+#define NJUST_LIDAR64_HORIZONTAL_RESOLUTION_CM     20           //64线雷达的水平分辨率20cm
 //垂直栅格数400个,必须保证是8的倍数
 #define NJUST_LIDAR64_VERTICAL_GRID_NUM          (NJUST_LIDAR64_VERTICAL_DISTANCE_CM/NJUST_LIDAR64_VERTICAL_RESOLUTION_CM)           
 //水平栅格数800个,必须保证是8的倍数
 #define NJUST_LIDAR64_HORIZONTAL_GRID_NUM        (NJUST_LIDAR64_HORIZONTAL_DISTANCE_CM/NJUST_LIDAR64_HORIZONTAL_RESOLUTION_CM)
 //存储
-#define NJUST_LIDAR64_VERTICAL_GRID_SIZE         NJUST_LIDAR64_VERTICAL_GRID_NUM 
-#define NJUST_LIDAR64_HORIZONTAL_GRID_SIZE       (NJUST_LIDAR64_HORIZONTAL_GRID_NUM/8)
+//#define NJUST_LIDAR64_VERTICAL_GRID_SIZE         NJUST_LIDAR64_VERTICAL_GRID_NUM 
+//#define NJUST_LIDAR64_HORIZONTAL_GRID_SIZE       (NJUST_LIDAR64_HORIZONTAL_GRID_NUM/2) //因为每个栅格4bit,16种属性
 ////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  类型定义
@@ -72,7 +75,7 @@ struct NJUST_3D64_POINT_2D
 struct NJUST_3D64_OBS_DATA  
 {
 	unsigned int         OBSID;                                  //障碍物ID
-	NJUST_3D64_POINT_2D  pPoint[NJUST_3D64_MAX_OBS_POINT_NUM];     //目测障碍物最左边一个可见点，以下为逆时针旋转其他三个角点。
+	NJUST_3D64_POINT_2D  pPoint[NJUST_3D64_MAX_OBS_POINT_NUM];   //目测障碍物最左边一个可见点，以下为逆时针旋转其他三个角点。
 	int                  nPoint;                                 //障碍物有效点数
 	int                  z_cm;                                   //2D障碍物z=0cm
     int                  fbSpeed_cmps;                           //障碍物的前后速度上的分量,单位:厘米/秒
@@ -129,12 +132,22 @@ typedef struct NJUST_3D64_ROAD_SLOPE
 //  3D给融合模块的网格数据
 //
 ////////////////////////////////////////////////////////////////////////////////////////////
+//栅格类型
+enum NJUST_3D64_GRID_TYPE
+{
+	NJUST_3D64_GRID_TYPE_NORMAL = 0x00, //平地
+	NJUST_3D64_GRID_TYPE_OBS,           //正障碍
+	NJUST_3D64_GRID_TYPE_NEGTIVE_OBS,   //负障碍
+	NJUST_3D64_GRID_TYPE_WATRE,         //水
+	NJUST_3D64_GRID_TYPE_TOTAL_NUM      //类型总数,最多不能超过256种.
+};
 typedef struct tagNJUST_3D64_GRID_TO_FU  
 {
 	int                    frameID;                               //帧ID(从0开始)
 	NJUST_IP_TIME          synTime;                               //时间戳
 	unsigned int           navID;                                 //与图像获取时间最接近的导航数据编号(从0开始)
-	BYTE                   gridMsk[NJUST_LIDAR64_VERTICAL_GRID_SIZE][NJUST_LIDAR64_HORIZONTAL_GRID_SIZE];  //高400*宽800: 400*100个字节
+	BYTE                   gridMsk[NJUST_LIDAR64_VERTICAL_GRID_NUM*NJUST_LIDAR64_HORIZONTAL_GRID_NUM];  //高400*宽800
 }NJUST_3D64_GRID_TO_FU;
+
 
 #endif

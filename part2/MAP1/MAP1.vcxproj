@@ -84,7 +84,10 @@
     <ClCompile Include="..\NJUST_MAP_proc.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\MapCommunion.h" />
+    <ClInclude Include="..\MapFileStream.h" />
     <ClInclude Include="..\MapModule.h" />
+    <ClInclude Include="..\MapTools.h" />
     <ClInclude Include="..\MAP__BASIC_data.h" />
     <ClInclude Include="..\NJUST_2D_data.h" />
     <ClInclude Include="..\NJUST_2D_proc.h" />

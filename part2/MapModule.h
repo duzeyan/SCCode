@@ -35,14 +35,14 @@ extern pthread_cond_t      cond ;
 // Map模块主类（业务和算法）
 class MapApp{
 private:
-	MapFileStream* mapFile;          //调用文件类
-	bool exitFlag;                   //MAP模块结束标志
-	bool checkExpOut;                //检查是否异常退出
-	NJUST_MAP_BUILD_MAP map;		 //自建地图所有信息
-	vector<MAP_TASK_NODE> mapTaskNode;		 //任务文件中给出的路径，转化成自建地图中的【路口编号序列】
-	NJUST_PLAN_PATH planPath;				 //规划的路径
-	vector<MAP_DOUBLE_POINT> GPSList;//当前道路或者路口的GPS序列
-	int frame_pl;					//发给PL的帧数
+	MapFileStream* _mapFile;          //调用文件类
+	bool _exitFlag;                   //MAP模块结束标志
+	bool _checkExpOut;                //检查是否异常退出
+	NJUST_MAP_BUILD_MAP _map;		 //自建地图所有信息
+	vector<MAP_TASK_NODE> _mapTaskNode;		 //任务文件中给出的路径，转化成自建地图中的【路口编号序列】
+	NJUST_PLAN_PATH _planPath;				 //规划的路径 编号
+	vector<MAP_DOUBLE_POINT> _GPSList;//当前道路或者路口的GPS序列
+	int _frame_pl;					//发给PL的帧数
 	FILE *pRecord;					//状态文件的文件指针
 	
 
