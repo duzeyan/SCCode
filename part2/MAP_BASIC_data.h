@@ -5,6 +5,7 @@
 #include<vector>
 //#include "NJUST_ALV_BYD.h"
 #include"NJUST_MAP_data.h"
+#include "stdio.h"
 using namespace std;
 //缓存最近GPS个数
 #define CACHE_GPS_LEN     5
@@ -16,18 +17,32 @@ using namespace std;
 //道路DI开始值
 #define START_LINE_ID   20000
 
+//日志 输出
+extern FILE *gLOG_OUT;
 #define _MAP_LOG 1
 #if _MAP_LOG
-	#define MAP_PRINT(fmt,v) printf(fmt,v);fflush(stdout)
+	#define MAP_PRINT(fmt,v) fprintf(gLOG_OUT,fmt,v);fflush(gLOG_OUT)
 #else
     #define MAP_PRINT(fmt,v) 
 #endif
+
+//debug 输出
+extern FILE *gDEBUG_OUT;
+
+#define _MAP_DEBUG 1
+#if _MAP_DEBUG
+#define DEBUG_PRINT(fmt,v)  fprintf(gDEBUG_OUT,fmt,v);fflush(gDEBUG_OUT)
+#else
+#define DEBUG_PRINT(fmt,v) 
+#endif
+
+
+
 
 //采集地图信息时 路口结构
 #pragma pack (1)
 typedef struct MAP_BUTTON_NOTE{
 	//节点对应与实际路口的信息
-
 	int     neigh;//分支数
 	int     HLD;//红绿灯位置
 	int     HLDkind;//红绿灯类型

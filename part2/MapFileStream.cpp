@@ -1,10 +1,13 @@
 ﻿#include"MapTools.h"
 #include"MapFileStream.h"
 
+extern FILE* gDEBUG_OUT;
 
 ///
 /// MapFileStream
 ///
+
+#define MAP_FILEPATH_MAX 255 //文件路径长度上限
 
 //构造函数 需要传入 数据文件的目录
 MapFileStream::MapFileStream(const char* loadpath){
@@ -16,47 +19,48 @@ void MapFileStream::LoadMapNode(NJUST_MAP_BUILD_MAP &map){
 	MAP_BUILD_FILE_HEAD      mapHead;
 	vector<MAP_NODE>::iterator itNode;
 	vector<MAP_ROAD>::iterator itRoad;
-
-	char filename[]="board.db";
-	char path[50];
-	strcpy(path,loadpath);
-	strcat(path,filename);  //拼接完整目录
-
-	map.mapNode.reserve(100);
-	map.mapLine.reserve(100);
-	
 	//中间变量
 	MAP_NODE tNode;										  
 	MAP_ROAD tRoad;
 	MAP_BUTTON_NOTE tButtonNode;
 	MAP_BUTTON_LINE tButtonLine;
 	NJUST_MAP_OBSTACLE obs;
-	
+
+	//Step 1 -----------拼接文件路径--------------
+	char filename[]="board.db";
+	char path[MAP_FILEPATH_MAX];
+	strcpy(path,loadpath);
+	strcat(path,filename);  //拼接完整目录
+
+	//Step 2 -----------打开文件--------------
 	FILE *pFile = fopen(path, "rb");
 	if(pFile==NULL){
 		MAP_PRINT("打开地图结构文件失败\n","");
 		return ;
 	}
 
+	//Step 3 -----------读取文件头--------------
 	fread(&mapHead,sizeof(MAP_BUILD_FILE_HEAD),1,pFile);  //读取文件头 包含了节点和道路的个数
 	map.adjustPoint.x=mapHead.m_adjustx;
 	map.adjustPoint.y=mapHead.m_adjusty;
 	MAP_PRINT("X:%lf\n",map.adjustPoint.x);
 	MAP_PRINT("Y:%lf\n",map.adjustPoint.y);
 
-
+	//Step 4 -----------读取节点序列--------------
 	for(int i=0;i<mapHead.notecounter;i++){              //读道路信息 路口
 		fread(&tNode, sizeof(MAP_NODE), 1, pFile);
 		MapTools::Node2ButtonNode(tNode,tButtonNode);
 		map.mapNode.push_back(tButtonNode);
 	}
 
+	//Step 5 -----------读取道路序列--------------
 	for(int i=0;i<mapHead.linecounter;i++){              //读道路信息  道路
 		fread(&tRoad, sizeof(MAP_ROAD), 1, pFile);
 		MapTools::Line2ButtonLine(tRoad,tButtonLine);
 		map.mapLine.push_back(tButtonLine);
 	}
 
+	//Step 5 -----------读取障碍物--------------
 	for(int i=0;i<mapHead.obstaclecounter;i++){              //读道路信息  道路
 		fread(&obs, sizeof(NJUST_MAP_OBSTACLE), 1, pFile);
 		map.mapObs.push_back(obs);
@@ -66,27 +70,26 @@ void MapFileStream::LoadMapNode(NJUST_MAP_BUILD_MAP &map){
 	MAP_PRINT("%s加载路点信息\n","");
 }
 
-//加载自建地图中 任务路点(需要规划)
+//加载地图中的任务路点(需要规划)
 void MapFileStream::LoadMapTask(vector<MAP_TASK_NODE> &mapTaskNode){
-	mapTaskNode.reserve(100);
-
+	//Step 1 -----------拼接文件路径--------------
 	char filename[]="InitialNodeQueue.db";
-	char path[50];
+	char path[MAP_FILEPATH_MAX];
 	strcpy(path,loadpath);
 	strcat(path,filename);  //拼接完整目录
 
+	//Step 2 ----------打开文件--------------
 	FILE *pf = fopen(path ,"rb");
 	if(pf==NULL){
-		perror("perror");
+		MAP_PRINT("打开地图任务路点失败\n","");
 		return ;
 	}
 
+	//Step 3 -----------读取文件内容--------------
 	MAP_TASK_NODE buff[100];
 	fseek(pf, 0L, SEEK_END);
 	int len = ftell(pf) / sizeof(ROADNODE);
 	fseek(pf, 0L, SEEK_SET);
-	//fread(buff, sizeof(ROADNODE), len, pf);
-
     for(int i=0;i<len;i++)
 	{
 		fread(&(buff[i]), sizeof(ROADNODE), 1, pf);
@@ -94,18 +97,19 @@ void MapFileStream::LoadMapTask(vector<MAP_TASK_NODE> &mapTaskNode){
     }
     
     fclose(pf);
-	MAP_PRINT("%s待规划路径：","");
-	FILE *flog=fopen("logInit" ,"w");
-	for(unsigned int i=0;i<mapTaskNode.size();i++){
-		fprintf(pf,"%d ",mapTaskNode[i].num);
-		fprintf(pf,"%lf ",mapTaskNode[i].longtitude);
-		fprintf(pf,"%lf ",mapTaskNode[i].latitude);
-		fprintf(pf,"%lf ",mapTaskNode[i].noderesult);
-		fprintf(pf,"%lf ",mapTaskNode[i].shuxing1);
-		fprintf(pf,"%s","\n");
-	}
-	fclose(flog);
-	MAP_PRINT("%s","\n");
+
+	//MAP_PRINT("%s待规划路径：","");
+	//FILE *flog=fopen("logInitNode" ,"w");
+	//for(unsigned int i=0;i<mapTaskNode.size();i++){
+	//	fprintf(pf,"%d ",mapTaskNode[i].num);
+	//	fprintf(pf,"%lf ",mapTaskNode[i].longtitude);
+	//	fprintf(pf,"%lf ",mapTaskNode[i].latitude);
+	//	fprintf(pf,"%lf ",mapTaskNode[i].noderesult);
+	//	fprintf(pf,"%lf ",mapTaskNode[i].shuxing1);
+	//	fprintf(pf,"%s","\n");
+	//}
+	//fclose(flog);
+	//MAP_PRINT("%s","\n");
 }
 
 //加载自建地图的邻接矩阵 注意，调用次方法前必须已经调用LoadMapNode
@@ -117,18 +121,17 @@ void MapFileStream::LoadAdjMat(NJUST_MAP_BUILD_MAP &map){
 
 	//打开文件
     char filename[]="adjust.db";
-	char path[50];
+	char path[MAP_FILEPATH_MAX];
 	strcpy(path,loadpath);
 	strcat(path,filename);  //拼接完整目录
 
 	FILE *pf = fopen(path ,"rb");
 	if(pf==NULL){
-		perror("perror");
+		MAP_PRINT("加载邻接矩阵文件失败\n","");
 		return ;
 	}
 	
 	//读取矩阵
-
 	//读块内存的方法
 	/*int tAdj[noteCount*noteCount];
 	fread(tAdj, sizeof(int), noteCount*noteCount, pf);
@@ -144,6 +147,7 @@ void MapFileStream::LoadAdjMat(NJUST_MAP_BUILD_MAP &map){
 		map.adjMat.push_back(buff);
 	}
 	fclose(pf);
+
 	MAP_PRINT("%s加载邻接矩阵信息\n","");
 }
 
@@ -165,24 +169,27 @@ void MapFileStream::ReadMapGPS(int a,int b,vector<MAP_DOUBLE_POINT> &GPSList,boo
 	
 
 	FILE *pf = fopen(path ,"rb");
-	
-
-	//正序和逆序都尝试一遍
-	if (pf == NULL)
-	{
-		isOrder=false;
-		memset(path,0,50);
-		sprintf(filename,"%d%c%d.db",b,cj,a);
-		strcpy(path,loadpath);
-		strcat(path,filename);  //拼接完整目录
-
-		pf = fopen(path ,"rb");
-	}
 	if(pf==NULL){
-		perror("perror");
+		MAP_PRINT("加载GPS序列文件失败\n","");
 		return ;
 	}
-	
+
+	//正序和逆序都尝试一遍
+	//if (pf == NULL)
+	//{
+	//	isOrder=false;
+	//	memset(path,0,50);
+	//	sprintf(filename,"%d%c%d.db",b,cj,a);
+	//	strcpy(path,loadpath);
+	//	strcat(path,filename);  //拼接完整目录
+
+	//	pf = fopen(path ,"rb");
+	//}
+	//if(pf==NULL){
+	//	perror("perror");
+	//	return ;
+	//}
+	//
 
 	//读取GPS序列
 	fseek(pf, 0L, SEEK_END);
@@ -193,9 +200,9 @@ void MapFileStream::ReadMapGPS(int a,int b,vector<MAP_DOUBLE_POINT> &GPSList,boo
 		GPSList.push_back(tPoint);
 	}
 	//逆序处理
-	if(!isOrder){
+	/*if(!isOrder){
 		reverse(GPSList.begin(),GPSList.end());
-	}
+	}*/
 
 	fclose(pf);
 

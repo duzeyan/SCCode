@@ -88,7 +88,7 @@
     <ClInclude Include="..\MapFileStream.h" />
     <ClInclude Include="..\MapModule.h" />
     <ClInclude Include="..\MapTools.h" />
-    <ClInclude Include="..\MAP__BASIC_data.h" />
+    <ClInclude Include="..\MAP_BASIC_data.h" />
     <ClInclude Include="..\NJUST_2D_data.h" />
     <ClInclude Include="..\NJUST_2D_proc.h" />
     <ClInclude Include="..\NJUST_3D4_data.h" />

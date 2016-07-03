@@ -2,10 +2,12 @@
 #define _NJUST_MAP_FILE_H_
 
 
+
 #include<string.h>
 #include<algorithm>
-#include"MAP__BASIC_data.h"
+#include"MAP_BASIC_data.h"
 #include "NJUST_ALV_BYD.h"
+
 
 ///
 ///Map模块文件读取工具类

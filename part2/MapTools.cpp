@@ -8,7 +8,7 @@
 
 
 
-//节点转化
+
 void  MapTools::Node2ButtonNode(MAP_NODE &node,MAP_BUTTON_NOTE &buttonNode){
 		buttonNode.idself = node.idself;
 		buttonNode.neigh = node.neigh;
@@ -28,7 +28,7 @@ void  MapTools::Node2ButtonNode(MAP_NODE &node,MAP_BUTTON_NOTE &buttonNode){
 		buttonNode.earthy = node.earthy;
 }
 
-//道路转化
+
 void  MapTools::Line2ButtonLine(MAP_ROAD &line,MAP_BUTTON_LINE &buttonLine){
 		buttonLine.idself = line.idself;
 		buttonLine.idstart = line.idstart;
@@ -66,7 +66,6 @@ void MapTools::ms_sleep( unsigned int msecs ){
 	while ( rc == -1 && errno == EINTR );
 }
 
-//检查GPS是否合理
 bool MapTools::CheckGPS(double lng,double lat,double lastlng,double lastlat){
 	if (lat>3 && lat<53&& lng>73 && lng<130)
 		if(abs(lastlat-lat)<0.0001&&abs(lastlng-lng)<0.0001) //10m
@@ -156,7 +155,6 @@ void MapTools::GPS2Earthy(double x, double y, int &earthx, int &earthy)//纬度�
 	return;
 }
 
-//计算两对经纬度获取之间的直线距离(m)
 double MapTools::GetDistanceByGPS(double lng1,double lat1,double lng2,double lat2){
 	int earthxcur, earthycur;
 	int earthxtemp, earthytemp;
@@ -168,7 +166,6 @@ double MapTools::GetDistanceByGPS(double lng1,double lat1,double lng2,double lat
 	return distance;
 }
 
-//通过路口ID获得路口索引
 int MapTools::GetNodeIndexByID(const vector<MAP_BUTTON_NOTE> &nodes,int id){
 	for(size_t i=0;i<nodes.size();i++){
 		if(nodes[i].idself==id)
@@ -183,7 +180,6 @@ MAP_BUTTON_NOTE MapTools::GetNodeByID(const vector<MAP_BUTTON_NOTE> &nodes,int i
 	return nodes[index];
 }
 
-	//通过道路ID获得道路属性
 MAP_BUTTON_LINE  MapTools::GetLineByID(const vector<MAP_BUTTON_LINE> &lines,int id){
 	int index=MapTools::GetLineIndexByID(lines,id);
 	assert(index!=-1);
@@ -191,7 +187,6 @@ MAP_BUTTON_LINE  MapTools::GetLineByID(const vector<MAP_BUTTON_LINE> &lines,int 
 }
 
 
-//通过道路ID获得道路索引
 int  MapTools::GetLineIndexByID(const vector<MAP_BUTTON_LINE> &lines,int id){
 	for(size_t i=0;i<lines.size();i++){
 		if(lines[i].idself==id)
@@ -200,8 +195,6 @@ int  MapTools::GetLineIndexByID(const vector<MAP_BUTTON_LINE> &lines,int id){
 	return -1;
 }
 
-//根据距离且在给出GPS序列点上的障碍物对象指针，没有符合条件返回NULL
-//当前经纬度(单位度),设定距离(m) 
 void MapTools::GetObsByDistance(double lng,
 								double lat,
 								double distanceM,
@@ -481,7 +474,6 @@ double  MapTools::GetRotateAngle(double x1, double y1, double x2, double y2)//�
 		return degree;
 }
 
-//ID转化为编号
 int MapTools::ID2Code(int id){
 	assert(id>=START_NODE_ID);
 	if(id<START_LINE_ID){ //是节点ID
@@ -490,7 +482,6 @@ int MapTools::ID2Code(int id){
 	return id-START_LINE_ID+1;
 }
 
-//编号转化为ID
 int MapTools::Code2ID(int code,int type){
 	assert(code>=0);
 	switch (type)

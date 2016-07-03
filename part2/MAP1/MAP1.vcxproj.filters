@@ -113,9 +113,6 @@
     <ClInclude Include="..\Parameter.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\MAP__BASIC_data.h">
-      <Filter>MAP头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\MapCommunion.h">
       <Filter>MAP头文件</Filter>
     </ClInclude>
@@ -126,6 +123,9 @@
       <Filter>MAP头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\MapTools.h">
+      <Filter>MAP头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MAP_BASIC_data.h">
       <Filter>MAP头文件</Filter>
     </ClInclude>
   </ItemGroup>
