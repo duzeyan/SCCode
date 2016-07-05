@@ -133,13 +133,12 @@ int main(int argc,char *argv[]){
 	}else{
 		s="njustmap/";
 	}
-	
-
 
 	//Step 2 -----------运行--------------
 	MapApp mapapp;
-	mapapp.Intialize(s.c_str());
-	mapapp.Run();
+	mapapp.intialize(s.c_str());
+	mapapp.run();
+	//mapapp.simulate();
 
 	//Step 3 -----------关闭DEBUG--------------
 	fclose(gDEBUG_OUT);

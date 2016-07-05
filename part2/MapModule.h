@@ -61,15 +61,32 @@ public:
 	// 描述：运行MAP模块 规划数据来自指定目录下
 	// 返回值: void
 	//************************************
-	void Run();
+	void run();
 
+	//************************************
+	// 描述：模拟运行MAP模块,生成结果存在特定文件中
+	// 返回值: void
+	//************************************
+	void simulate();
+
+	//************************************
+	// 描述：将结果存在特定文件中
+	// 返回值: void
+	//************************************
+	void simOutResult(const vector<MAP_DOUBLE_POINT> &list);
+
+	//************************************
+	// 描述：模拟运行MAP模块,生成结果存在特定文件中
+	// 返回值: void
+	//************************************
+	void simMakeGPS(double lng,double lat,vector<MAP_DOUBLE_POINT> &GPSList);
 	
 	//************************************
 	// 描述：初始化参数 
 	// 返回值: void
 	// 参数:   const char * loadpath  地图信息目录
 	//************************************
-	void Intialize(const char* loadpath);
+	void intialize(const char* loadpath);
 
 	
 	//************************************
@@ -109,7 +126,7 @@ public:
 	// 参数:   int s 出发处节点的编号
 	// 参数:   int e 终点处节点编号
 	//************************************
-	void PathPlaning(int s,int e);
+	void pathPlaning(int s,int e);
 
 	
 	//************************************
@@ -117,7 +134,7 @@ public:
 	// 返回值: void
 	// 参数:   int & srart [out]返回定位结果
 	//************************************
-	void StartPlan(int& srart);
+	void startPlan(int& srart);
 
 	
 	//************************************
@@ -127,7 +144,7 @@ public:
 	// 参数:   int e 终点路口的编号
 	// 参数:   vector<int> & [out]规划出的节点序列,内容为编号
 	//************************************
-	void Dijkstra(int s,int e,vector<int>&);
+	void dijkstra(int s,int e,vector<int>&);
 
 	
 	//************************************
@@ -136,7 +153,7 @@ public:
 	// 参数:   double lng 经度，单位度
 	// 参数:   double lat 维度，单位度
 	//************************************
-	int Location(double lng,double lat);
+	int location(double lng,double lat);
 
 	
 	//************************************
@@ -146,7 +163,7 @@ public:
 	// 参数:   double lat 维度,单位度
 	// 参数:   int lineID 道路ID
 	//************************************
-	bool IsInLine(double lng,double lat,int lineID);
+	bool isInLine(double lng,double lat,int lineID);
 
 	//
 	//************************************
@@ -155,7 +172,7 @@ public:
 	// 参数:   double lng 经度,单位度
 	// 参数:   double lat 维度,单位度
 	//************************************
-	int LocationGPS(double lng,double lat);
+	int locationGPS(double lng,double lat);
 
 	
 	//************************************
@@ -166,7 +183,7 @@ public:
 	// 参数:   int curID  当前道路ID 道路x
 	// 参数:   int nextIndex 道路x终点的路口索引
 	//************************************
-	void SendRoad(double lng,double lat,int curID,int nextIndex);
+	void sendRoad(double lng,double lat,int curID,int nextIndex);
 
 	
 	//************************************
@@ -178,7 +195,7 @@ public:
 	// 参数:   int lastIndex  上一个路口索引
 	// 参数:   int nextIndex  下一个路口索引
 	//************************************
-	void SendNode(double lng,double lat,int curID,int lastIndex,int nextIndex);
+	void sendNode(double lng,double lat,int curID,int lastIndex,int nextIndex);
 
 	
 	//************************************
@@ -187,7 +204,7 @@ public:
 	// 参数:   char buff[] 打包后的数据
 	// 参数:   int n       数据长度
 	//************************************
-	void Send2Mo(char buff[],int n);
+	void send2Mo(char buff[],int n);
 
 	
 	//************************************
@@ -198,7 +215,7 @@ public:
 	// 参数:   int lastIndex 最近节点ID
 	// 参数:   int nextIndex 下一个要路过节点ID
 	//************************************
-	void GetDirection(NJUST_MAP_INFO_NODE &node,int curIndex,int lastIndex,int nextIndex);
+	void getDirection(NJUST_MAP_INFO_NODE &node,int curIndex,int lastIndex,int nextIndex);
 
 	
 	//************************************
@@ -206,7 +223,7 @@ public:
 	// 返回值: bool		是否合理
 	// 参数:   int ID   location计算出的ID
 	//************************************
-	bool CheckLoaction(int ID);
+	bool checkLoaction(int ID);
 
 	
 	//************************************
@@ -215,7 +232,7 @@ public:
 	// 参数:   int curID   当前ID
 	// 参数:   int lastID  刚经过路口的ID
 	//************************************
-	void RecordWrite(int curID,int lastID);
+	void recordWrite(int curID,int lastID);
 
 	//************************************
 	// 描述：  读上次意外退出的状态
@@ -223,13 +240,13 @@ public:
 	// 参数:   int & curID 读取存储的当前ID
 	// 参数:   int & lastID 读取存储的前ID
 	//************************************
-	void RecordRead(int &curID,int &lastID);
+	void recordRead(int &curID,int &lastID);
 	
 	//************************************
 	// 描述：  释放持有内存
 	// 返回值: void
 	//************************************
-	void Release(); 
+	void release(); 
 };
 
 #endif

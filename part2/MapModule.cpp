@@ -31,6 +31,7 @@ void initDeBug(){
 	sprintf(logName,"DEBUGMAP-%04d-%02d-%02d_%02d:%02d:%02d", local->tm_year+1900, local->tm_mon,  
 		local->tm_mday, local->tm_hour, local->tm_min, local->tm_sec);  
 	gDEBUG_OUT = fopen(logName,"a+");  
+	printf("初始化日志");
 	return ;  
 }
 
@@ -64,11 +65,11 @@ MapApp::MapApp(){
 }
 
 MapApp::~MapApp(){
-	Release();
+	release();
 }
 
 
-void MapApp::Run(){
+void MapApp::run(){
 	double curLng,curLat,lastLng,lastLat;
 
 	//启动时定位
@@ -79,23 +80,24 @@ void MapApp::Run(){
 
 	//Step 1 -----------判断是否异常退出--------------
 	if(_checkExpOut){ //异常退出
-		RecordRead(curID,lastID); //读取记录文件
+		recordRead(curID,lastID); //读取记录文件
 	}else{           //正常启动
-		StartPlan(SIndex);
+		startPlan(SIndex);
 		if(SIndex==-1){
 			MAP_PRINT("附近没有路口,无法启动 %d\n",SIndex);
 			return;
 		}
-		PathPlaning(_mapTaskNode[SIndex].noderesult,_mapTaskNode[SIndex+1].noderesult);//规划路径，结果存在planPath
+		pathPlaning(_mapTaskNode[SIndex].noderesult,_mapTaskNode[SIndex+1].noderesult);//规划路径，结果存在planPath
 
 		//启动时的初始化
 		lastID=MapTools::Code2ID(_planPath.planPathQueue[0],1);
 		curID=lastID;
 		//启动的特殊处理 认为启动点是路段 节点1-》节点2之间的读点
 		_mapFile->ReadMapGPS(_planPath.planPathQueue[0],_planPath.planPathQueue[2],_GPSList,false);
-		RecordWrite(curID,lastID);//记录状态
+		recordWrite(curID,lastID);//记录状态
 	}
 
+	
 	//Step 2 -----------进入运行状态--------------
 	while(1){
 		//Step 2.1 -----------获取最新的GPS--------------
@@ -112,16 +114,16 @@ void MapApp::Run(){
 		//Step 2.2 -----------丢弃不合理GPS数据--------------
 		if (MapTools::CheckGPS(curLng,curLat,lastLng,lastLat))
 		{			
-			if((curID=Location(curLng,curLat))==-1){
+			if((curID=location(curLng,curLat))==-1){
 				MAP_PRINT("没有找到合适直线 ID为%d\n",curID);
 				continue;
 			}
 			if(curID!=lastID){              //进入新的路口或道路 此时记录
-				if(!CheckLoaction(curID)){
+				if(!checkLoaction(curID)){
 					curID=lastID;goto CONTINUE;
 				}
 				DEBUG_PRINT("输出状态文件:","\n");
-				RecordWrite(curID,lastID); //记录最新状态
+				recordWrite(curID,lastID); //记录最新状态
 
 				_planPath.cur++;
 				MAP_PRINT("=========================:%s\n","");
@@ -158,7 +160,7 @@ void MapApp::Run(){
 						remove(RECORD_FILE_NAME);  //删除记录文件
 						break;
 					}
-					PathPlaning(_mapTaskNode[SIndex].noderesult,_mapTaskNode[SIndex+1].noderesult);//规划路径，结果存在planPath
+					pathPlaning(_mapTaskNode[SIndex].noderesult,_mapTaskNode[SIndex+1].noderesult);//规划路径，结果存在planPath
 					//读取过渡 路口信息
 					_mapFile->ReadMapGPS(lastRoad,
 					_planPath.planPathQueue[1],_GPSList,
@@ -173,16 +175,137 @@ void MapApp::Run(){
 			if(_planPath.cur%2==0){  //路口
 				int lastIndex=MapTools::GetNodeIndexByID(_map.mapNode,lastNode-1+START_NODE_ID);
 				int nextIndex=MapTools::GetNodeIndexByID(_map.mapNode,_planPath.planPathQueue[_planPath.cur+2]-1+START_NODE_ID);
-				SendNode(curLng,curLat,curID,lastIndex,nextIndex);
+				sendNode(curLng,curLat,curID,lastIndex,nextIndex);
 			}else{                  //道路
 				int theNestIndex=MapTools::GetNodeIndexByID(_map.mapNode,_planPath.planPathQueue[_planPath.cur+1]-1+START_NODE_ID);
-				SendRoad(curLng,curLat,curID,theNestIndex);
+				sendRoad(curLng,curLat,curID,theNestIndex);
 			}
 		}//checkGPS
 	}//while
 }//fun
 
-void MapApp::Intialize(const char* loadpath){
+void MapApp::simulate(){
+	double curLng,curLat,lastLng,lastLat;    //GPS数据
+	int SIndex=-1;                           //在任务节点中的位置索引
+	int lastID;								 //最近离开道路或路口的 ID
+	int curID;								 //当前所在的道路或节点 ID
+	int lastNode=-1;						 //上一次经过的节点编号，用来判断当前方向
+	vector<MAP_DOUBLE_POINT> pathList;        //模拟运行中的输出结果
+	vector<MAP_DOUBLE_POINT> wholeList;      //保存全局结果
+	
+	///Step 1 -----------启动初始化--------------
+	SIndex=0;
+	pathPlaning(_mapTaskNode[SIndex].noderesult,_mapTaskNode[SIndex+1].noderesult);//规划路径，结果存在planPath
+
+	//启动时的初始化
+	lastID=MapTools::Code2ID(_planPath.planPathQueue[0],1);
+	curID=lastID;
+	//启动的特殊处理 认为启动点是路段 节点1-》节点2之间的读点
+	_mapFile->ReadMapGPS(_planPath.planPathQueue[0],_planPath.planPathQueue[2],_GPSList,false);
+	lastLng=0.0;
+	lastLat=0.0;
+	curLng=_GPSList[0].x/60;
+	curLat=_GPSList[0].y/60;
+	//Step 2 -----------进入运行状态--------------
+	while(1){
+			if((curID=location(curLng,curLat))==-1){
+				MAP_PRINT("没有找到合适直线 ID为%d\n",curID);
+				continue;
+			}
+			if(curID!=lastID){              //进入新的路口或道路 此时记录
+				if(!checkLoaction(curID)){
+					curID=lastID;goto CONTINUE;
+				}
+				_planPath.cur++;
+				MAP_PRINT("=========================:%s\n","");
+				if(_planPath.cur%2==0){
+					MAP_PRINT("进入新路口:[路口%d]",MapTools::ID2Code(curID));
+					MAP_PRINT("(%d)\n",curID);
+				}
+				else{
+					MAP_PRINT("进入新道路:[道路%d]",MapTools::ID2Code(curID));
+					MAP_PRINT("(%d)\n",curID);
+				}
+
+				size_t tcur=_planPath.cur;
+				if(tcur<_planPath.planPathQueue.size()-1){//最近一次规划的路线没走完，读新路段文件
+					MAP_PRINT("%s没有读完最近一次规划的节点\n","");
+					bool isNode=(tcur%2==0);  //偶数是路口
+					//读取指定段序列
+					_mapFile->ReadMapGPS(_planPath.planPathQueue[tcur-1],
+						_planPath.planPathQueue[tcur+1],_GPSList,
+						isNode);
+					//记录上一个路口编号
+					if(isNode)
+						lastNode=_planPath.planPathQueue[tcur-2];
+					else
+						lastNode=_planPath.planPathQueue[tcur-1];
+					lastID=curID; //更新 lastID
+				}else{								   //走到最近一次规划的最后一个节点
+					MAP_PRINT("%s新的规划路线\n","");
+					int lastRoad=_planPath.planPathQueue[_planPath.cur-1]; //记录最近一次规划走过的最后一段路，来构建路口过渡
+					lastNode=_planPath.planPathQueue[_planPath.cur-2]; 
+					SIndex++;
+					if(SIndex+1==_mapTaskNode.size()){
+						MAP_PRINT("到达最后的路口!%s","\n");
+						break;
+					}
+					pathPlaning(_mapTaskNode[SIndex].noderesult,_mapTaskNode[SIndex+1].noderesult);//规划路径，结果存在planPath
+					//读取过渡 路口信息
+					_mapFile->ReadMapGPS(lastRoad,
+						_planPath.planPathQueue[1],_GPSList,
+						true);
+					lastID=curID;
+				}
+			}//if find new ID
+			CONTINUE:
+
+			//Step 3 -----------定位记录GPS--------------
+			simMakeGPS(curLng,curLat,pathList);
+		    for(int i=0;i<pathList.size();i++){
+				wholeList.push_back(pathList[i]);
+			}
+			DEBUG_PRINT("输出+%s","\n");
+			//更新GPS
+			lastLng=curLng;
+			lastLat=curLat; 
+			curLng=pathList.back().x/60; //经度维度
+			curLat=pathList.back().y/60;
+			DEBUG_PRINT("更新GPS lng:%lf \n",curLng);
+			DEBUG_PRINT("更新GPS lat:%lf ",curLat);
+	}//while
+	simOutResult(wholeList);//输出结果
+}
+
+void MapApp::simOutResult(const vector<MAP_DOUBLE_POINT> &list){
+	char *logName="simResult";  
+	int i;
+	FILE *pFile;
+
+	pFile = fopen(logName,"w+"); 
+	for(i=0;i<list.size();i++){
+		fprintf(pFile,"%lf %lf\n",list[i].x,list[i].y);
+	}
+	fclose(pFile);
+	return ;  
+}
+
+void MapApp::simMakeGPS(double lng,double lat,vector<MAP_DOUBLE_POINT> &GPSList){
+	size_t indexGPS=locationGPS(lng,lat);
+	GPSList.clear();
+	//最多读20个GPS点
+	int len=0;
+	MAP_DOUBLE_POINT point;
+	for(size_t i=indexGPS;i<indexGPS+20;i++){
+		if(i<_GPSList.size()){
+			point.x = _GPSList[i].x;
+			point.y =_GPSList[i].y;
+			GPSList.push_back(point);
+		}
+	}
+}
+
+void MapApp::intialize(const char* loadpath){
 	//Step 0 -----------声明--------------
 	MapCommunion communion;
 
@@ -222,7 +345,7 @@ void MapApp::Intialize(const char* loadpath){
 }
 
 
-void MapApp::StartPlan(int& start){
+void MapApp::startPlan(int& start){
 	double curLng,curLat;
 	double dis=0;//启动点附近距离 单位m
 
@@ -256,14 +379,14 @@ void MapApp::StartPlan(int& start){
 	return;
 }
 
-int MapApp::Location(double lng,double lat){
+int MapApp::location(double lng,double lat){
 	//Step 1 -----------寻找离该GPS最近的路口--------------
 	double min=5000;//5km
 	double dis=0;
 	int minNodeIndex=-1; //最近节点索引
 	for(size_t i=0;i<_map.mapNode.size();i++){
 		dis=MapTools::GetDistanceByGPS(lng,lat,_map.mapNode[i].gpsx,_map.mapNode[i].gpsy);
-	/*	MAP_PRINT("curLng%lf \n",lng);
+		/*MAP_PRINT("curLng%lf \n",lng);
 		MAP_PRINT("curLat%lf \n",lat);
 		MAP_PRINT("gpsx %lf\n",_map.mapNode[i].gpsx);
 		MAP_PRINT("gpsy %lf\n",_map.mapNode[i].gpsy);*/
@@ -272,11 +395,11 @@ int MapApp::Location(double lng,double lat){
 			minNodeIndex=i;
 		}
 	}
-	
+	//DEBUG_PRINT("min dis:%lf \n",dis);
+
 	//Step 2 -----------确定当前位置是否在路口上--------------
 	if(min<30){				// 在30m范围之内
 		return _map.mapNode[minNodeIndex].idself;
-		
 	}
 	
 	//Step 3 -----------确定最近路口邻接的路口是否有符合条件的,路口优先--------------
@@ -297,7 +420,7 @@ int MapApp::Location(double lng,double lat){
 	for(int i=0;i<_map.mapNode[minNodeIndex].neigh;i++){
 		int ID=_map.mapNode[minNodeIndex].NeighLineID[i];  //先按照经纬度舍弃直线
 		int index=MapTools::GetLineIndexByID(_map.mapLine,ID);
-		if(IsInLine(lng,lat,index)){   //在符合条件的道路中 寻找最近道路
+		if(isInLine(lng,lat,index)){   //在符合条件的道路中 寻找最近道路
 			double b=_map.mapLine[index].b;
 			double c=_map.mapLine[index].c;
 			double k=_map.mapLine[index].k;
@@ -315,7 +438,7 @@ int MapApp::Location(double lng,double lat){
 	return LineID;
 }
 
-int MapApp::LocationGPS(double lng,double lat){
+int MapApp::locationGPS(double lng,double lat){
 	double min=100000; //10W km
 	int index=-1;
 	for(size_t i=0;i<_GPSList.size();i++){
@@ -329,7 +452,7 @@ int MapApp::LocationGPS(double lng,double lat){
 }
 
 
-bool MapApp::IsInLine(double lng,double lat,int index){
+bool MapApp::isInLine(double lng,double lat,int index){
 	//Step 1 -------------获取前后两个路口的ID------------
 	int IDs=_map.mapLine[index].idstart;			//起点终点节点 ID
 	int IDe=_map.mapLine[index].idend;
@@ -362,7 +485,7 @@ bool MapApp::IsInLine(double lng,double lat,int index){
 }
 
 
-void MapApp::PathPlaning(int s,int e){
+void MapApp::pathPlaning(int s,int e){
 	//Step 0 -----------声明--------------
 	vector<int> pathNode;  //节点序列
 	vector<int> pathWhole; //最终结果
@@ -373,7 +496,7 @@ void MapApp::PathPlaning(int s,int e){
 	tempID2=tempID=0;
 
 	//Step 1 -----------根据最短路径算法得到节点序列--------------
-	Dijkstra(s,e,pathNode);
+	dijkstra(s,e,pathNode);
 	
 	//Step 2 -----------在道路序列中插入对于的道路编号--------------
 	pathWhole.reserve(pathNode.size()*2);
@@ -417,7 +540,7 @@ void MapApp::PathPlaning(int s,int e){
 }
 
 
-void MapApp::Dijkstra(int s,int e,vector<int> &pathV){	
+void MapApp::dijkstra(int s,int e,vector<int> &pathV){	
 	//Step 0 -----------把节点编号转化成adj矩阵中的索引--------------
 	int sID=MapTools::Code2ID(s,1);
 	int eID=MapTools::Code2ID(e,1);
@@ -518,8 +641,8 @@ int  MapApp::MCCallBack(void* mc_to_map, size_t size, void* args){
 		//计算丢包率相关
 		MapApp::s_mapPackage.count++;
 		MapApp::s_mapPackage.startTime=NJUST_IP_get_time();
-		//MAP_PRINT("lng:%lf  ",pNav->Longitude_degree);
-		//MAP_PRINT("lat:%lf  \n",pNav->Latitude_degree);
+		printf("debug: %lf  ",pNav->Longitude_degree);
+		printf("debug:%lf  \n",pNav->Latitude_degree);
 		pthread_cond_signal(&cond);
 		pthread_mutex_unlock(&gMutex);
 		
@@ -531,8 +654,8 @@ int  MapApp::MCCallBack(void* mc_to_map, size_t size, void* args){
 
 int MapApp::MOCallBack(void* mo_to_map, size_t size, void* args){
 		NJUST_FROM_MO_COMMAND *pCmd = NULL;
-		NJUST_FROM_MO_CFG *pcfg=NULL;
-		NJUST_MO_Decode_IP_Data_CMD(mo_to_map, size, &pCmd,&pcfg);
+		NJUST_FROM_MO_CFG *pCfg=NULL;
+		NJUST_MO_Decode_IP_Data_CMD(mo_to_map, size, &pCmd,&pCfg);
 		if(pCmd!=NULL){
 			if (pCmd->cmd == NJUST_MO_COMMAND_TYPE_COMPUTER_RESTART)
 			{
@@ -555,17 +678,17 @@ int MapApp::MOCallBack(void* mo_to_map, size_t size, void* args){
 				//SetRelease();
 			}
 		}
-		if(pcfg!=NULL){
-			for(int i=0;i<pcfg->nCFG;i++){
-				DEBUG_PRINT("cfg:%d ",pcfg->pCFG[i].cfg);
-				DEBUG_PRINT("valuse:%d \n",pcfg->pCFG[i].value);
+		if(pCfg!=NULL){
+			for(int i=0;i<pCfg->nCFG;i++){
+				DEBUG_PRINT("cfg:%d ",pCfg->pCFG[i].cfg);
+				DEBUG_PRINT("valuse:%d \n",pCfg->pCFG[i].value);
 			}
 		}
 		return 1;
 }
 
 
-void MapApp::SendRoad(double lng,double lat,int curID,int nextIndex){
+void MapApp::sendRoad(double lng,double lat,int curID,int nextIndex){
 	NJUST_MAP_INFO_ROAD   road;
 	NJUST_MAP_INFO_ROAD  *proad = &road;
 	char buff[1024];
@@ -592,7 +715,7 @@ void MapApp::SendRoad(double lng,double lat,int curID,int nextIndex){
 	road.nextNodeGps.longtitude=nextNode.gpsy;
 
 	
-	size_t indexGPS=LocationGPS(lng,lat);
+	size_t indexGPS=locationGPS(lng,lat);
 	//最多读20个GPS点
 	int len=0;
 	for(size_t i=indexGPS;i<indexGPS+20;i++){
@@ -626,13 +749,13 @@ void MapApp::SendRoad(double lng,double lat,int curID,int nextIndex){
 		if (len>3)
 			NJUST_IP_udp_send_to("", buff, 1024);
 			MapTools::ms_sleep(10);
-			Send2Mo(buff,1024);
+			send2Mo(buff,1024);
 	}
 	
 }
 
 
-void MapApp::SendNode(double lng,double lat,int curID,int lastIndex,int nextIndex){
+void MapApp::sendNode(double lng,double lat,int curID,int lastIndex,int nextIndex){
 	NJUST_MAP_INFO_NODE  node;
 	NJUST_MAP_INFO_NODE  *pnode = &node;
 	char buff[1024];
@@ -644,10 +767,10 @@ void MapApp::SendNode(double lng,double lat,int curID,int lastIndex,int nextInde
 	if(lastIndex==-1){ //没有上一个节点,也就是开始处
 		node.nodepassType = NJUST_MAP_NODE_PASS_TYPE_NONE;
 	}else{                     //正常判断方向
-		GetDirection(node,index,lastIndex,nextIndex);
+		getDirection(node,index,lastIndex,nextIndex);
 	}
 
-	size_t indexGPS=LocationGPS(lng,lat);
+	size_t indexGPS=locationGPS(lng,lat);
 	//最多读20个GPS点
 	int len=0;
 	for(size_t i=indexGPS;i<indexGPS+20;i++){
@@ -687,12 +810,12 @@ void MapApp::SendNode(double lng,double lat,int curID,int lastIndex,int nextInde
 		}
 		MapTools::ms_sleep(10);
 		
-		Send2Mo(buff,1024);
+		send2Mo(buff,1024);
 	}
 }
 
 
-void MapApp::GetDirection(NJUST_MAP_INFO_NODE &node,int curIndex,int lastIndex,int nextIndex)
+void MapApp::getDirection(NJUST_MAP_INFO_NODE &node,int curIndex,int lastIndex,int nextIndex)
 {
 	//报出方向
 	MAP_TURN m_turn;
@@ -757,7 +880,7 @@ void MapApp::GetDirection(NJUST_MAP_INFO_NODE &node,int curIndex,int lastIndex,i
 }
 
 
-void MapApp::Send2Mo(char buff[],int n){
+void MapApp::send2Mo(char buff[],int n){
 		NJUST_TO_MO_WORKSTAT moState;
 		NJUST_IP_TIME time2;
 		time2 = NJUST_IP_get_time();
@@ -776,7 +899,7 @@ void MapApp::Send2Mo(char buff[],int n){
 		int r=NJUST_IP_udp_send_to("MO", pStat, nByte);
 }
 
-void MapApp::RecordWrite(int curID,int lastID){
+void MapApp::recordWrite(int curID,int lastID){
 	int i,code;
 	MAP_DOUBLE_POINT  point;
 	_pRecord=fopen(RECORD_FILE_NAME,"wb");
@@ -807,7 +930,7 @@ void MapApp::RecordWrite(int curID,int lastID){
 
 }
 
-void MapApp::RecordRead(int &curID,int &lastID){
+void MapApp::recordRead(int &curID,int &lastID){
 	if((access(RECORD_FILE_NAME,F_OK))!=0){
 		MAP_PRINT("没有找到记录文件!%s","\n");
 		return;
@@ -838,7 +961,7 @@ void MapApp::RecordRead(int &curID,int &lastID){
 	fclose(_pRecord);
 }
 
-bool MapApp::CheckLoaction(int curID){
+bool MapApp::checkLoaction(int curID){
 	if((_planPath.cur+1)%2==1) {     //应该发现新道路
 		if(curID-START_LINE_ID+1!=_planPath.planPathQueue[_planPath.cur+1]){ //新节点无效
 			MAP_PRINT("定位 ID为%d\n",curID);
@@ -855,7 +978,7 @@ bool MapApp::CheckLoaction(int curID){
 	return true;
 }
 
-void MapApp::Release(){
+void MapApp::release(){
 	if(_mapFile!=NULL){
 		delete _mapFile;
 	}
